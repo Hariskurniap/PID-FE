@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Core System Colors */
+    --color-background: #FAFBFC; /* gray-50 */
+    --color-foreground: #2C3E50; /* slate-700 */
+    --color-border: #E1E8ED; /* gray-200 */
+    --color-input: #FFFFFF; /* white */
+    --color-ring: #1E3A5F; /* blue-900 */
+    
+    /* Card & Surface Colors */
+    --color-card: #FFFFFF; /* white */
+    --color-card-foreground: #2C3E50; /* slate-700 */
+    --color-popover: #FFFFFF; /* white */
+    --color-popover-foreground: #2C3E50; /* slate-700 */
+    
+    /* Muted Colors */
+    --color-muted: #F8F9FA; /* gray-50 */
+    --color-muted-foreground: #7F8C8D; /* gray-500 */
+    
+    /* Brand Colors */
+    --color-primary: #1E3A5F; /* blue-900 */
+    --color-primary-foreground: #FFFFFF; /* white */
+    --color-secondary: #4A90A4; /* blue-gray-500 */
+    --color-secondary-foreground: #FFFFFF; /* white */
+    
+    /* Accent Colors */
+    --color-accent: #E67E22; /* orange-600 */
+    --color-accent-foreground: #FFFFFF; /* white */
+    
+    /* Status Colors */
+    --color-success: #27AE60; /* green-600 */
+    --color-success-foreground: #FFFFFF; /* white */
+    --color-warning: #F39C12; /* yellow-500 */
+    --color-warning-foreground: #FFFFFF; /* white */
+    --color-error: #E74C3C; /* red-500 */
+    --color-error-foreground: #FFFFFF; /* white */
+    --color-destructive: #E74C3C; /* red-500 */
+    --color-destructive-foreground: #FFFFFF; /* white */
+  }
+
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .shadow-card {
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.12);
+  }
+  
+  .shadow-elevated {
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .shadow-modal {
+    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.15);
+  }
+  
+  .transition-smooth {
+    transition: all 300ms cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+  
+  .transition-micro {
+    transition: all 150ms cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+}
