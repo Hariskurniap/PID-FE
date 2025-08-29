@@ -2,7 +2,7 @@
 import React from 'react';
 import Header from '../../components/ui/Header';
 import SessionTimeoutHandler from '../../components/ui/SessionTimeoutHandler';
-import EditBastForm from './components/EditBastForm';
+import EditBastForm from './components/EditBASTForm';
 import Icon from '../../components/AppIcon';
 import Button from '../../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
