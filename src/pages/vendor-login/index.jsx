@@ -17,6 +17,12 @@ const VendorLogin = () => {
       navigate('/internal-staff-dashboard');
     }else if (userRole === 'pic') {
       navigate('/internal-staff-dashboard');
+    }else if (userRole === 'reviewer') {
+      navigate('/reviewer-dashboard');
+    }else if (userRole === 'approval') {
+      navigate('/approver-dashboard');
+    }else if (userRole === 'vendorreview') {
+      navigate('/vendor-review-dashboard');
     }
 
     // Set page title

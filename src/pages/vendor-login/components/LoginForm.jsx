@@ -102,6 +102,12 @@ const LoginForm = () => {
         navigate('/internal-staff-dashboard');
       } else if (data.role === 'pic') {
         navigate('/internal-staff-dashboard');
+      } else if (data.role === 'reviewer') {
+        navigate('/reviewer-dashboard');
+      } else if (data.role === 'approval') {
+        navigate('/approver-dashboard');
+      } else if (data.role === 'vendorreview') {
+        navigate('/vendor-review-dashboard');
       } else {
         navigate('/');
       }

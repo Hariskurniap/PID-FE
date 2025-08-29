@@ -20,10 +20,37 @@ const PenggunaFormModal = ({ open, onClose, onSubmit, editData }) => {
     const [passwordStrength, setPasswordStrength] = useState('');
 
     useEffect(() => {
+        const fetchVendors = async () => {
+            try {
+                const token = localStorage.getItem('token');
+
+                if (!token) {
+                    console.error('Token tidak ditemukan');
+                    return;
+                }
+
+                const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/vendors`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+
+                const data = await res.json();
+                setVendors(data);
+            } catch (err) {
+                console.error('Gagal memuat data vendor:', err);
+                // Bisa tampilkan pesan ke user
+            }
+        };
+
         if (editData) setForm(editData);
-        fetch(`${import.meta.env.VITE_API_BASE_URL}/api/vendors`)
-            .then((res) => res.json())
-            .then(setVendors);
+        fetchVendors();
     }, [editData]);
 
     const handleChange = (e) => {
@@ -96,7 +123,7 @@ const PenggunaFormModal = ({ open, onClose, onSubmit, editData }) => {
         });
 
         const data = await res.json();
-        
+
         if (!res.ok) {
             console.error('Error:', data.message || data);
             alert(data.message || 'Gagal menyimpan data');
@@ -104,7 +131,7 @@ const PenggunaFormModal = ({ open, onClose, onSubmit, editData }) => {
         }
         alert("Berhasil menyimpan!");  // <-- alert berhasil disini
 
-    onSubmit(data);  // kirim data ke parent supaya parent bisa update state / redirect
+        onSubmit(data);  // kirim data ke parent supaya parent bisa update state / redirect
     };
 
     return open ? (
