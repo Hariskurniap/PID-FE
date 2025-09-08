@@ -105,7 +105,7 @@ const BastListCard = ({ basts = [], loading = false, onViewDetails, onRefresh, o
                                     >
                                         Detail
                                     </Button>
-                                    {(bast.status === 'DRAFT' || bast.status === 'DISETUJUI_APPROVER') && (
+                                    {(bast.status === 'DRAFT') && (
                                         <Button
                                             variant="outline"
                                             size="sm"

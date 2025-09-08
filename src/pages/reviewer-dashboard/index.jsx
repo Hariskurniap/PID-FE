@@ -6,6 +6,7 @@ import StatusOverviewCard from './components/StatusOverviewCard';
 import BastListCard from './components/BastListCard.jsx';
 import SearchFilterCard from './components/SearchFilterCard';
 import FloatingActionButton from './components/FloatingActionButton';
+// import StatusOverviewCardReviewer from './components/StatusOverviewCardReviewer';
 
 const ReviewerDashboard = () => {
   const navigate = useNavigate();
@@ -25,12 +26,12 @@ const ReviewerDashboard = () => {
         search: filters.searchTerm || '',
         orderby: filters.orderby || ''
       });
-      
+
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/bast/reviewer/${emailReviewer}?${queryParams}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      
+
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Gagal mengambil data');
       setBasts(data);
@@ -46,11 +47,11 @@ const ReviewerDashboard = () => {
     setRefreshing(true);
     handleSearch(searchFilters).finally(() => setRefreshing(false));
   };
-  
+
   const handleViewDetails = (idBast) => {
     navigate(`/bast/details?id=${idBast}`);
   };
-  
+
   const handleReview = (idBast) => {
     navigate(`/bast/review?id=${idBast}`);
   };
@@ -78,8 +79,10 @@ const ReviewerDashboard = () => {
               Review dan pantau status BAST yang ditugaskan kepada Anda
             </p>
           </div>
-          
-          <StatusOverviewCard
+
+
+
+          {/* <StatusOverviewCard
             statusCounts={{
               pending: basts.filter(b => b.status === 'PENDING').length,
               approved: basts.filter(b => b.status === 'DISETUJUI_REVIEWER').length,
@@ -87,8 +90,12 @@ const ReviewerDashboard = () => {
               draft: basts.filter(b => b.status === 'DRAFT').length
             }}
             onStatusClick={(status) => handleSearch({ status })}
+          /> */}
+          <StatusOverviewCard
+            reviewerEmail={emailReviewer}
+            onStatusClick={(status) => handleSearch({ status })}
           />
-          
+
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             <div className="xl:col-span-3 space-y-6">
               <SearchFilterCard
@@ -107,7 +114,7 @@ const ReviewerDashboard = () => {
           </div>
         </div>
       </main>
-      
+
       <SessionTimeoutHandler
         timeoutDuration={600000}
         warningDuration={60000}

@@ -231,7 +231,7 @@ const ApproverBastForm = () => {
       
       // Redirect setelah 3 detik
       setTimeout(() => {
-        window.location.href = '/reviewer-dashboard';
+        window.location.href = '/approver-dashboard';
       }, 3000);
     } catch (err) {
       console.error(err);
@@ -717,7 +717,7 @@ const ApproverBastForm = () => {
                   // Jika modal sukses setelah submit, redirect ke dashboard
                   if (modalContent.type === 'success' && 
                       (modalContent.title === 'BAST Disetujui' || modalContent.title === 'BAST Ditolak')) {
-                    window.location.href = '/reviewer-dashboard';
+                    window.location.href = '/approver-dashboard';
                   }
                 }}
               >

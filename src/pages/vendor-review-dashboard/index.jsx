@@ -79,13 +79,17 @@ const VendorReviewDashboard = () => {
             </p>
           </div>
           
-          <StatusOverviewCard
+          {/* <StatusOverviewCard
             statusCounts={{
               pending: basts.filter(b => b.status === 'PENDING').length,
               approved: basts.filter(b => b.status === 'DISETUJUI_REVIEWER').length,
               rejected: basts.filter(b => b.status === 'DITOLAK_REVIEWER').length,
               draft: basts.filter(b => b.status === 'DRAFT').length
             }}
+            onStatusClick={(status) => handleSearch({ status })}
+          /> */}
+          <StatusOverviewCard
+            reviewerEmail={emailReviewer}
             onStatusClick={(status) => handleSearch({ status })}
           />
           

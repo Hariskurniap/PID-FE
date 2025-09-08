@@ -4,7 +4,7 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const StatusOverviewCard = ({ onStatusClick, vendorId = null }) => {
+const StatusOverviewCardBAST = ({ onStatusClick }) => {
   const [statusCounts, setStatusCounts] = useState({});
   const [loading, setLoading] = useState(true);
 
@@ -12,13 +12,16 @@ const StatusOverviewCard = ({ onStatusClick, vendorId = null }) => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/api/invoice/status-summary`, {
+      const vendorId = localStorage.getItem('vendorId'); // 🔑 ambil vendorId dari localStorage
+
+      const response = await axios.get(`${API_BASE_URL}/api/bast/summary`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: vendorId ? { vendorId } : {}, // Hanya kirim vendorId jika ada
+        params: vendorId ? { vendorId } : {}, // kirim kalau ada
       });
+
       setStatusCounts(response.data);
     } catch (error) {
-      console.error('Failed to fetch status summary:', error);
+      console.error('Failed to fetch BAST status summary:', error);
     } finally {
       setLoading(false);
     }
@@ -26,70 +29,37 @@ const StatusOverviewCard = ({ onStatusClick, vendorId = null }) => {
 
   useEffect(() => {
     fetchStatusSummary();
-  }, [vendorId]); // fetch ulang jika vendorId berubah
+  }, []); // cukup sekali jalan di awal
 
   const statusConfig = [
-    {
-      key: 'pending',
-      label: 'Menunggu Review',
-      englishLabel: 'Sent',
-      icon: 'Send',
-      color: 'text-primary',
-      bgColor: 'bg-primary/10',
-      borderColor: 'border-primary/20',
-      count: statusCounts.pending || 0
-    },
-    {
-      key: 'received',
-      label: 'Diterima',
-      englishLabel: 'Received',
-      icon: 'CheckCircle2',
-      color: 'text-secondary',
-      bgColor: 'bg-secondary/10',
-      borderColor: 'border-secondary/20',
-      count: statusCounts.received || 0
-    },
-    {
-      key: 'rejected',
-      label: 'Ditolak',
-      englishLabel: 'Rejected',
-      icon: 'Shield',
-      color: 'text-success',
-      bgColor: 'bg-success/10',
-      borderColor: 'border-success/20',
-      count: statusCounts.rejected || 0
-    },
-    {
-      key: 'paid',
-      label: 'Terbayar',
-      englishLabel: 'Paid',
-      icon: 'ArrowRight',
-      color: 'text-warning',
-      bgColor: 'bg-warning/10',
-      borderColor: 'border-warning/20',
-      count: statusCounts.paid || 0
-    }
+    { key: 'DRAFT', label: 'Draft', englishLabel: 'Draft', icon: 'FileText', color: 'text-gray-500', bgColor: 'bg-gray-100', borderColor: 'border-gray-200', count: statusCounts.DRAFT || 0 },
+    { key: 'WAITING_REVIEW', label: 'Menunggu Review', englishLabel: 'Waiting Review', icon: 'Clock', color: 'text-primary', bgColor: 'bg-primary/10', borderColor: 'border-primary/20', count: statusCounts.WAITING_REVIEW || 0 },
+    { key: 'DIPERIKSA_USER', label: 'Diperiksa User', englishLabel: 'Reviewed by User', icon: 'UserCheck', color: 'text-blue-500', bgColor: 'bg-blue-100', borderColor: 'border-blue-200', count: statusCounts.DIPERIKSA_USER || 0 },
+    { key: 'DISETUJUI_APPROVER', label: 'Disetujui Approver', englishLabel: 'Approved by Approver', icon: 'CheckCircle2', color: 'text-green-500', bgColor: 'bg-green-100', borderColor: 'border-green-200', count: statusCounts.DISETUJUI_APPROVER || 0 },
+    { key: 'DISETUJUI_VENDOR', label: 'Disetujui Vendor', englishLabel: 'Approved by Vendor', icon: 'User', color: 'text-teal-500', bgColor: 'bg-teal-100', borderColor: 'border-teal-200', count: statusCounts.DISETUJUI_VENDOR || 0 },
+    { key: 'INPUT_SAGR', label: 'Input SAGR', englishLabel: 'SAGR Input', icon: 'Edit', color: 'text-yellow-600', bgColor: 'bg-yellow-100', borderColor: 'border-yellow-200', count: statusCounts.INPUT_SAGR || 0 },
+    { key: 'BAST_DONE', label: 'Selesai', englishLabel: 'BAST Done', icon: 'CheckSquare', color: 'text-success', bgColor: 'bg-success/10', borderColor: 'border-success/20', count: statusCounts.BAST_DONE || 0 },
   ];
 
-  const totalInvoices = statusConfig.reduce((sum, status) => sum + status.count, 0);
+  const totalBast = statusConfig.reduce((sum, status) => sum + status.count, 0);
 
   return (
     <div className="bg-card rounded-lg shadow-card border border-border p-6 mb-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-heading font-semibold text-foreground">
-            Ringkasan Status Invoice
+            Ringkasan Status BAST
           </h2>
           <p className="text-sm font-caption text-muted-foreground">
-            Invoice Status Overview
+            BAST Status Overview
           </p>
         </div>
         <div className="text-right">
           <div className="text-2xl font-heading font-bold text-foreground">
-            {loading ? '...' : totalInvoices}
+            {loading ? '...' : totalBast}
           </div>
           <div className="text-sm font-caption text-muted-foreground">
-            Total Invoice
+            Total BAST
           </div>
         </div>
       </div>
@@ -130,14 +100,14 @@ const StatusOverviewCard = ({ onStatusClick, vendorId = null }) => {
         ))}
       </div>
 
-      {!loading && totalInvoices === 0 && (
+      {!loading && totalBast === 0 && (
         <div className="text-center py-8">
           <Icon name="FileText" size={48} className="text-muted-foreground mx-auto mb-3" />
           <p className="text-sm font-body text-muted-foreground">
-            Belum ada invoice yang disubmit
+            Belum ada BAST yang disubmit
           </p>
           <p className="text-xs font-caption text-muted-foreground">
-            No invoices submitted yet
+            No BAST submitted yet
           </p>
         </div>
       )}
@@ -145,4 +115,4 @@ const StatusOverviewCard = ({ onStatusClick, vendorId = null }) => {
   );
 };
 
-export default StatusOverviewCard;
+export default StatusOverviewCardBAST;

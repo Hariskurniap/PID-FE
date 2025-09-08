@@ -38,6 +38,7 @@ const SigninOidc = () => {
         localStorage.setItem('access_token', user.access_token);
         localStorage.setItem('token', user.access_token);
         localStorage.setItem('id_token', user.id_token);
+        localStorage.setItem('auth_method', 'oauth2');
 
         // Ambil email dan display_name dari user.profile
         const email = decoded.email || '';

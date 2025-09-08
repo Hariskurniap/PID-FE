@@ -86,6 +86,7 @@ const LoginForm = () => {
       if (!res.ok) throw new Error(data.message || 'Login gagal');
 
       // Simpan data user dan token
+      localStorage.setItem('auth_method', 'local');
       localStorage.setItem('token', data.token);
       localStorage.setItem('userEmail', data.email);
       localStorage.setItem('userRole', data.role);

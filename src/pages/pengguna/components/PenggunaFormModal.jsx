@@ -123,7 +123,7 @@ const PenggunaFormModal = ({ open, onClose, onSubmit, editData }) => {
                     </select>
 
                     {/* Nama */}
-                    {/* {form.role === 'vendor' ? (
+                    {['vendor', 'vendorview'].includes(form.role) ? (
                         <input
                             className="w-full p-2 border rounded"
                             name="nama"
@@ -142,18 +142,18 @@ const PenggunaFormModal = ({ open, onClose, onSubmit, editData }) => {
                             placeholder="Cari Nama (opsional)"
                             isClearable
                         />
-                    )} */}
+                    )}
 
                     {/* Email */}
 
-                    <input
+                    {/* <input
                         className="w-full p-2 border rounded"
                         name="nama"
                         placeholder="Nama"
                         value={form.nama}
                         onChange={handleChange}
                         required
-                    />
+                    /> */}
                     <input
                         className="w-full p-2 border rounded"
                         name="email"
@@ -186,7 +186,7 @@ const PenggunaFormModal = ({ open, onClose, onSubmit, editData }) => {
                     )}
 
                     {/* Vendor Selector */}
-                    {(form.role === 'vendor' || form.role === 'vendorreview' ) && (
+                    {(form.role === 'vendor' || form.role === 'vendorreview') && (
                         <select name="vendorId" value={form.vendorId} onChange={handleChange} className="w-full p-2 border rounded">
                             <option value="">Pilih Vendor</option>
                             {vendors.map((v) => (

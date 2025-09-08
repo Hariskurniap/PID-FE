@@ -123,7 +123,7 @@ const BastListCard = ({ basts = [], loading = false, onViewDetails, onRefresh, o
                     Detail
                   </Button>
                   
-                  {(bast.status === 'DIPERIKSA_USER') && (
+                  {(bast.status === 'DISETUJUI_APPROVER') && (
                     <Button
                       variant="default"
                       size="sm"
