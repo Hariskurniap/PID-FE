@@ -16,10 +16,10 @@ const CompanyLogo = () => {
           {/* Company Name */}
           {/* Company Name */}
 <div className="text-left">
-  {/* <img src={logo} alt="Patra Logistik Logo" className="h-10" /> */}
-  {/* <p className="text-sm font-body text-primary font-medium">
+  <img src={logo} alt="Patra Logistik Logo" className="h-10" />
+  <p className="text-sm font-body text-primary font-medium">
     Patlog Invoice Drop
-  </p> */}
+  </p>
 </div>
 
         </div>

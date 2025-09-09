@@ -143,9 +143,9 @@ const Header = () => {
               <Icon name="FileText" size={20} color="white" />
             </div>
             <div className="hidden sm:block">
-              {/* <h1 className="text-lg font-heading font-semibold text-foreground">
+              <h1 className="text-lg font-heading font-semibold text-foreground">
                 Patlog Invoice Drop
-              </h1> */}
+              </h1>
             </div>
           </div>
         </div>
