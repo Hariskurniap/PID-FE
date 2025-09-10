@@ -29,6 +29,8 @@ const VendorForm = ({ onCancel }) => {
       nama: '',
       email: '',
       telepon: '',
+      password: '',           // ✅ Field password untuk PIC
+      confirmPassword: '',    // ✅ Field konfirmasi password
     },
     poinPrioritas1: 0,
     poinPrioritas2: 0,
@@ -58,10 +60,12 @@ const VendorForm = ({ onCancel }) => {
   const validate = () => {
     const newErrors = {};
 
+    // Validasi wajib vendor
     if (!formData.nomor) newErrors.nomor = 'Nomor wajib diisi';
     if (!formData.nama) newErrors.nama = 'Nama wajib diisi';
     if (!formData.alamat) newErrors.alamat = 'Alamat wajib diisi';
 
+    // Validasi NPWP & NIK format
     if (formData.npwp && formData.npwp.length !== 15) {
       newErrors.npwp = 'NPWP harus 15 digit';
     }
@@ -69,10 +73,12 @@ const VendorForm = ({ onCancel }) => {
       newErrors.nik = 'NIK harus 16 digit';
     }
 
+    // Validasi website jika cabang
     if (formData.isBranch && !formData.website) {
       newErrors.website = 'Website wajib diisi jika dibuat sebagai cabang';
     }
 
+    // Validasi bank jika salah satu role aktif
     if (formData.pkp || formData.customer || formData.vendor) {
       if (!formData.bank.nomorRekening) {
         newErrors.nomorRekening = 'Nomor rekening wajib diisi';
@@ -85,11 +91,24 @@ const VendorForm = ({ onCancel }) => {
       }
     }
 
+    // Validasi PIC
     if (!formData.pic.nama) newErrors.picNama = 'Nama PIC wajib diisi';
     if (!formData.pic.email) {
       newErrors.picEmail = 'Email PIC wajib diisi';
     } else if (!/^\S+@\S+\.\S+$/.test(formData.pic.email)) {
       newErrors.picEmail = 'Email tidak valid';
+    }
+
+    // ✅ Validasi Password PIC
+    if (!formData.pic.password) {
+      newErrors.picPassword = 'Password wajib diisi';
+    } else if (formData.pic.password.length < 8) {
+      newErrors.picPassword = 'Password minimal 8 karakter';
+    }
+
+    // ✅ Validasi Konfirmasi Password
+    if (formData.pic.password !== formData.pic.confirmPassword) {
+      newErrors.picConfirmPassword = 'Password tidak cocok';
     }
 
     setErrors(newErrors);
@@ -110,6 +129,7 @@ const VendorForm = ({ onCancel }) => {
       return;
     }
 
+    // ✅ Siapkan payload termasuk password PIC
     const payload = {
       nomor: formData.nomor,
       namaVendor: formData.nama,
@@ -130,6 +150,7 @@ const VendorForm = ({ onCancel }) => {
       picNama: formData.pic.nama,
       picEmail: formData.pic.email,
       picTelepon: formData.pic.telepon,
+      picPassword: formData.pic.password, // ✅ Kirim password ke backend
       poinPrioritas1: Number(formData.poinPrioritas1) || 0,
       poinPrioritas2: Number(formData.poinPrioritas2) || 0,
     };
@@ -145,7 +166,7 @@ const VendorForm = ({ onCancel }) => {
       body.append('skbFile', formData.skbFile);
     }
 
-    // 🔍 Debug: Cek isi FormData
+    // 🔍 Optional: Debug FormData (bisa dihapus di production)
     for (let [key, value] of body.entries()) {
       console.log(key, value);
     }
@@ -162,7 +183,7 @@ const VendorForm = ({ onCancel }) => {
       const result = await res.json();
 
       if (res.ok) {
-        alert('Vendor berhasil ditambahkan!');
+        alert('Vendor dan Akun PIC berhasil ditambahkan!');
         handleReset();
         if (onCancel) onCancel();
       } else {
@@ -201,6 +222,8 @@ const VendorForm = ({ onCancel }) => {
         nama: '',
         email: '',
         telepon: '',
+        password: '',           // ✅ Reset password
+        confirmPassword: '',    // ✅ Reset konfirmasi
       },
       poinPrioritas1: 0,
       poinPrioritas2: 0,
@@ -404,7 +427,7 @@ const VendorForm = ({ onCancel }) => {
 
         {/* PIC */}
         <div className="mt-6 pt-6 border-t border-border">
-          <h4 className="font-medium text-foreground mb-4">PIC</h4>
+          <h4 className="font-medium text-foreground mb-4">PIC (Penanggung Jawab)</h4>
           <Input
             label="Nama"
             type="text"
@@ -427,6 +450,27 @@ const VendorForm = ({ onCancel }) => {
             placeholder="081234567890"
             value={formData.pic.telepon}
             onChange={(e) => handleNestedChange('pic', 'telepon', e.target.value)}
+          />
+
+          {/* ✅ Input Password */}
+          <Input
+            label="Password"
+            type="password"
+            placeholder="••••••••"
+            value={formData.pic.password}
+            onChange={(e) => handleNestedChange('pic', 'password', e.target.value)}
+            error={errors.picPassword}
+            description="Minimal 8 karakter"
+          />
+
+          {/* ✅ Input Konfirmasi Password */}
+          <Input
+            label="Konfirmasi Password"
+            type="password"
+            placeholder="••••••••"
+            value={formData.pic.confirmPassword}
+            onChange={(e) => handleNestedChange('pic', 'confirmPassword', e.target.value)}
+            error={errors.picConfirmPassword}
           />
         </div>
 

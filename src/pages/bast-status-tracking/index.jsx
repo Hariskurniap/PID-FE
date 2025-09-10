@@ -1,18 +1,16 @@
+// Bast-status-tracking/index.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/ui/Header';
 import SessionTimeoutHandler from '../../components/ui/SessionTimeoutHandler';
-import StatusOverviewCard from './components/StatusOverviewCard';
-import BastListCard from './components/BastListCard';
 import SearchFilterCard from './components/SearchFilterCard';
-import FloatingActionButton from './components/FloatingActionButton';
+import BastListCard from './components/BastListCard';
 
-const VendorDashboard = () => {
+const BastStatusTracking = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const [searchFilters, setSearchFilters] = useState({});
   const [isSearching, setIsSearching] = useState(false);
+  const [searchFilters, setSearchFilters] = useState({});
   const [basts, setBasts] = useState([]);
 
   const vendorId = localStorage.getItem('vendorId');
@@ -24,7 +22,10 @@ const VendorDashboard = () => {
     try {
       const token = localStorage.getItem('token');
       const queryParams = new URLSearchParams({
-        search: filters.searchTerm || ''
+        search: filters.searchTerm || '',
+        status: filters.status || '',
+        startDate: filters.startDate || '',
+        endDate: filters.endDate || ''
       });
 
       const response = await fetch(
@@ -43,18 +44,12 @@ const VendorDashboard = () => {
     }
   };
 
-  const handleRefresh = () => handleSearch(searchFilters);
-
   const handleViewDetails = (idBast) => {
-    navigate(`/bast/details?id=${idBast}`);
+    navigate(`/bast/tracking?id=${idBast}`);
   };
 
   const handleEdit = (idBast) => {
     navigate(`/bast/edit?id=${idBast}`);
-  };
-
-  const handleUploadNew = () => {
-    navigate('/bast/upload');
   };
 
   const handleReview = (idBast) => {
@@ -73,38 +68,29 @@ const VendorDashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="mb-8">
             <h1 className="text-2xl lg:text-3xl font-heading font-bold text-foreground mb-2">
-              Dashboard Vendor
+              Pelacakan Status BAST
             </h1>
             <p className="text-sm font-caption text-muted-foreground">
-              Kelola dan pantau status BAST Anda
+              Pantau dan kelola status BAST Anda
             </p>
           </div>
 
-          <StatusOverviewCard
-            statusCounts={{ draft: basts.filter(b => b.status === 'DRAFT').length }}
-            onStatusClick={(status) => handleSearch({ status })}
-          />
+          <div className="space-y-6">
+            <SearchFilterCard
+              onSearch={handleSearch}
+              onReset={() => handleSearch({})}
+              isSearching={isSearching}
+            />
 
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <div className="xl:col-span-3 space-y-6">
-              <SearchFilterCard
-                onSearch={handleSearch}
-                onReset={() => handleSearch({})}
-                isSearching={isSearching}
-              />
-
-              <BastListCard
-                basts={basts}
-                onViewDetails={handleViewDetails}
-                onEdit={handleEdit}
-                onReview={handleReview}
-              />
-            </div>
+            <BastListCard
+              basts={basts}
+              onViewDetails={handleViewDetails}
+              onEdit={handleEdit}
+              onReview={handleReview}
+            />
           </div>
         </div>
       </main>
-
-      <FloatingActionButton onClick={handleUploadNew} />
 
       <SessionTimeoutHandler
         timeoutDuration={600000}
@@ -117,4 +103,4 @@ const VendorDashboard = () => {
   );
 };
 
-export default VendorDashboard;
+export default BastStatusTracking;

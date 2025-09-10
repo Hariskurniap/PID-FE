@@ -180,7 +180,7 @@ const ReviewVendorBastForm = () => {
       
       // Redirect setelah 3 detik
       setTimeout(() => {
-        window.location.href = '/vendor-review-dashboard';
+        window.location.href = '/vendor-dashboard';
       }, 3000);
     } catch (err) {
       console.error(err);
@@ -230,7 +230,7 @@ const ReviewVendorBastForm = () => {
       
       // Redirect setelah 3 detik
       setTimeout(() => {
-        window.location.href = '/vendor-review-dashboard';
+        window.location.href = '/vendor-dashboard';
       }, 3000);
     } catch (err) {
       console.error(err);
@@ -717,7 +717,7 @@ const ReviewVendorBastForm = () => {
                   // Jika modal sukses setelah submit, redirect ke dashboard
                   if (modalContent.type === 'success' && 
                       (modalContent.title === 'BAST Disetujui' || modalContent.title === 'BAST Ditolak')) {
-                    window.location.href = '/vendor-review-dashboard';
+                    window.location.href = '/vendor-dashboard';
                   }
                 }}
               >

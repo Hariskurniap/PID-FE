@@ -13,7 +13,7 @@ import InvoiceUpload from "pages/invoice-upload";
 import InternalStaffDashboard from "pages/internal-staff-dashboard";
 import InternalPicDashboard from "pages/internal-pic-dashboard";
 import DocumentReview from "pages/document-review";
-import InvoiceStatusTracking from "pages/invoice-status-tracking";
+import InvoiceStatusTracking from "pages/bast-status-tracking";
 import InvoiceMappingPic from "pages/invoice-mapping-pic";
 import InvoiceReview from "pages/invoice-review";
 import Pengguna from "pages/pengguna";
@@ -27,6 +27,7 @@ import Bast from "pages/bast";
 // import EditBASTForm from './pages/bast/components/EditBASTForm';
 import EditBastPage from './pages/bast/EditBastPage';
 import DetailBastPage from './pages/bast/DetailBastPage';
+import TrackingBastPage from './pages/bast/TrackingBastPage';
 
 import ReviewerDashboard from "pages/reviewer-dashboard";
 import ReviewBastPage from "./pages/bast/ReviewBastPage";
@@ -55,13 +56,14 @@ const Routes = () => {
           <Route path="/internal-staff-dashboard" element={<InternalStaffDashboard />} />
           <Route path="/internal-pic-dashboard" element={<InternalPicDashboard />} />
           <Route path="/document-review" element={<DocumentReview />} />
-          <Route path="/invoice-status-tracking" element={<InvoiceStatusTracking />} />
+          <Route path="/bast-status-tracking" element={<InvoiceStatusTracking />} />
           <Route path="/invoice-mapping-pic/:id" element={<InvoiceMappingPic />} />
           <Route path="/pengguna" element={<Pengguna />} />
           <Route path="/bast" element={<Bast />} />
           {/* <Route path="/bast/edit" element={<EditBASTForm />} /> */}
           <Route path="/bast/edit" element={<EditBastPage />} />
           <Route path="/bast/details" element={<DetailBastPage />} />
+          <Route path="/bast/tracking" element={<TrackingBastPage />} />
           <Route path="/bast/review" element={<ReviewBastPage />} />
           <Route path="/bast/approve" element={<ApproverBastPage />} />
           <Route path="/bast/reviewVendor" element={<ReviewVendorBastPage />} />

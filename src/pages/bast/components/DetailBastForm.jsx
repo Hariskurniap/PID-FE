@@ -249,6 +249,16 @@ const DetailBastForm = () => {
           )}
         </div>
 
+{/* Dokumen BAST */}
+        <div>
+          <h4 className="font-medium mb-4">Dokumen Bast</h4>
+          <FileLink
+            path={bastData.fileBastUser}
+            filename="Bast.pdf"
+            label="Bast"
+          />
+        </div>
+
         {/* Copy Kontrak */}
         <div>
           <h4 className="font-medium mb-4">Copy Kontrak</h4>

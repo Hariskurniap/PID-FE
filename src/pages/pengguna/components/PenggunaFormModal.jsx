@@ -123,7 +123,7 @@ const PenggunaFormModal = ({ open, onClose, onSubmit, editData }) => {
                     </select>
 
                     {/* Nama */}
-                    {['vendor', 'vendorview'].includes(form.role) ? (
+                    {/* {['vendor', 'vendorview'].includes(form.role) ? (
                         <input
                             className="w-full p-2 border rounded"
                             name="nama"
@@ -142,18 +142,18 @@ const PenggunaFormModal = ({ open, onClose, onSubmit, editData }) => {
                             placeholder="Cari Nama (opsional)"
                             isClearable
                         />
-                    )}
+                    )} */}
 
                     {/* Email */}
 
-                    {/* <input
+                    <input
                         className="w-full p-2 border rounded"
                         name="nama"
                         placeholder="Nama"
                         value={form.nama}
                         onChange={handleChange}
                         required
-                    /> */}
+                    />
                     <input
                         className="w-full p-2 border rounded"
                         name="email"

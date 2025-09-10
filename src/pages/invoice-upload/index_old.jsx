@@ -194,7 +194,7 @@ const InvoiceUpload = () => {
 
   // Handle view status
   const handleViewStatus = () => {
-    navigate('/invoice-status-tracking', { 
+    navigate('/bast-status-tracking', { 
       state: { referenceNumber } 
     });
   };
@@ -384,7 +384,7 @@ const InvoiceUpload = () => {
                 </Button>
                 <Button
                   variant="ghost"
-                  onClick={() => navigate('/invoice-status-tracking')}
+                  onClick={() => navigate('/bast-status-tracking')}
                   iconName="Search"
                   iconPosition="left"
                   className="flex-1 sm:flex-none"

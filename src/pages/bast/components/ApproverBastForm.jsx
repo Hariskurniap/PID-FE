@@ -147,7 +147,7 @@ const ApproverBastForm = () => {
   };
 
   const handleApprove = async () => {
-    if (!validateForm(true)) return;
+    // if (!validateForm(true)) return;
     
     setSubmitting(true);
     const token = localStorage.getItem('token');
@@ -388,7 +388,7 @@ const ApproverBastForm = () => {
         </div>
 
         {/* Approver Vendor BAST */}
-        <div className="flex flex-col gap-1">
+        {/* <div className="flex flex-col gap-1">
           <label className="block font-medium">Approver Vendor BAST *</label>
           <div className="flex gap-2">
             <input
@@ -417,7 +417,7 @@ const ApproverBastForm = () => {
           {approverStatus === 'found' && (
             <p className="text-sm text-green-600 mt-1">✓ Approver valid dan ditemukan</p>
           )}
-        </div>
+        </div> */}
 
         {/* Keterangan/Notes */}
         <div>
