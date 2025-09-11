@@ -9,18 +9,18 @@ import SigninOidc from "pages/auth/SigninOidc";
 // Import halaman lain
 import VendorLogin from "pages/vendor-login";
 import VendorDashboard from "pages/vendor-dashboard";
-import InvoiceUpload from "pages/invoice-upload";
-import InternalStaffDashboard from "pages/internal-staff-dashboard";
-import InternalPicDashboard from "pages/internal-pic-dashboard";
-import DocumentReview from "pages/document-review";
-import InvoiceStatusTracking from "pages/bast-status-tracking";
-import InvoiceMappingPic from "pages/invoice-mapping-pic";
-import InvoiceReview from "pages/invoice-review";
+// import InvoiceUpload from "pages/invoice-upload";
+// import InternalStaffDashboard from "pages/internal-staff-dashboard";
+// import InternalPicDashboard from "pages/internal-pic-dashboard";
+// import DocumentReview from "pages/document-review";
+// import InvoiceStatusTracking from "pages/bast-status-tracking";
+// import InvoiceMappingPic from "pages/invoice-mapping-pic";
+// import InvoiceReview from "pages/invoice-review";
 import Pengguna from "pages/pengguna";
 import NotFound from "pages/NotFound";
 
-import ContractUpload from "pages/contract-upload";
-import ReceiptUpload from "pages/receipt-upload";
+// import ContractUpload from "pages/contract-upload";
+// import ReceiptUpload from "pages/receipt-upload";
 import MasterVendor from "pages/master-vendor";
 
 import Bast from "pages/bast";
@@ -50,14 +50,14 @@ const Routes = () => {
           <Route path="/vendor-login" element={<VendorLogin />} />
           <Route path="/signin-oidc" element={<SigninOidc />} />  {/* Tambahkan route baru di sini */}
           <Route path="/vendor-dashboard" element={<VendorDashboard />} />
-          <Route path="/invoice-upload" element={<InvoiceUpload />} />
+          {/* <Route path="/invoice-upload" element={<InvoiceUpload />} />
           <Route path="/contract-upload" element={<ContractUpload />} />
-          <Route path="/receipt-upload" element={<ReceiptUpload />} />
-          <Route path="/internal-staff-dashboard" element={<InternalStaffDashboard />} />
-          <Route path="/internal-pic-dashboard" element={<InternalPicDashboard />} />
-          <Route path="/document-review" element={<DocumentReview />} />
-          <Route path="/bast-status-tracking" element={<InvoiceStatusTracking />} />
-          <Route path="/invoice-mapping-pic/:id" element={<InvoiceMappingPic />} />
+          <Route path="/receipt-upload" element={<ReceiptUpload />} /> */}
+          {/* <Route path="/internal-staff-dashboard" element={<InternalStaffDashboard />} /> */}
+          {/* <Route path="/internal-pic-dashboard" element={<InternalPicDashboard />} /> */}
+          {/* <Route path="/document-review" element={<DocumentReview />} /> */}
+          {/* <Route path="/bast-status-tracking" element={<InvoiceStatusTracking />} /> */}
+          {/* <Route path="/invoice-mapping-pic/:id" element={<InvoiceMappingPic />} /> */}
           <Route path="/pengguna" element={<Pengguna />} />
           <Route path="/bast" element={<Bast />} />
           {/* <Route path="/bast/edit" element={<EditBASTForm />} /> */}
@@ -68,7 +68,7 @@ const Routes = () => {
           <Route path="/bast/approve" element={<ApproverBastPage />} />
           <Route path="/bast/reviewVendor" element={<ReviewVendorBastPage />} />
           <Route path="/master-vendor" element={<MasterVendor />} />
-          <Route path="/invoice-review/:id" element={<InvoiceReview />} />
+          {/* <Route path="/invoice-review/:id" element={<InvoiceReview />} /> */}
           <Route path="/reviewer-dashboard" element={<ReviewerDashboard/>} />
           <Route path="/approver-dashboard" element={<ApproverDashboard/>} />
           <Route path="/vendor-review-dashboard" element={<VendorReviewDashboard/>} />
