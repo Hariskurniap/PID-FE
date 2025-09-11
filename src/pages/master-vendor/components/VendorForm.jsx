@@ -170,9 +170,9 @@ const VendorForm = ({ onCancel }) => {
     for (let [key, value] of body.entries()) {
       console.log(key, value);
     }
-
+    const baseURL = import.meta.env.VITE_API_BASE_URL;
     try {
-      const res = await fetch('http://localhost:5000/api/vendors/create', {
+      const res = await fetch(`${baseURL}/api/vendors/create`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

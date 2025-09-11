@@ -17,7 +17,8 @@ const ListVendor = ({ onAdd, onEdit, onView }) => {
             setLoading(true);
             setError('');
 
-            const res = await fetch('http://localhost:5000/api/vendors', {
+            const baseURL = import.meta.env.VITE_API_BASE_URL;
+            const res = await fetch(`${baseURL}/api/vendors`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -42,9 +43,9 @@ const ListVendor = ({ onAdd, onEdit, onView }) => {
     // Hapus vendor
     const handleDelete = async (id) => {
         if (!window.confirm('Yakin ingin menghapus vendor ini?')) return;
-
+        const baseURL = import.meta.env.VITE_API_BASE_URL;
         try {
-            const res = await fetch(`http://localhost:5000/api/vendors/delete/${id}`, {
+            const res = await fetch(`${baseURL}/api/vendors/delete/${id}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${token}`,

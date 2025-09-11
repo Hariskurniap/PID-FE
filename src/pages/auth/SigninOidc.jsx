@@ -49,8 +49,10 @@ const SigninOidc = () => {
         localStorage.setItem('loginTime', new Date().toISOString());
 
         // Optional: fetch data user dari backend pakai email dari profile
+        const baseURL = import.meta.env.VITE_API_BASE_URL;
+
         try {
-          const res = await fetch(`http://localhost:5000/api/users/${email}`, {
+          const res = await fetch(`${baseURL}/api/users/${email}`, {
             headers: {
               Authorization: `Bearer ${user.access_token}`,
             },

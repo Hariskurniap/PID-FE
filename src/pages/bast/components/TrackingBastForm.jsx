@@ -90,7 +90,8 @@ const TrackingBastForm = () => {
   // Helper: Render file link
   const FileLink = ({ path, filename, label }) => {
     if (!path) return <span className="text-muted-foreground">-</span>;
-    const fullPath = path.startsWith('http') ? path : `http://localhost:5000/${path.replace(/\\/g, '/')}`;
+    const baseURL = import.meta.env.VITE_API_BASE_URL;
+    const fullPath = path.startsWith('http') ? path : `${baseURL}/${path.replace(/\\/g, '/')}`;
     return (
       <div className="flex items-center gap-2">
         <FileIcon size={16} className="text-blue-500" />
