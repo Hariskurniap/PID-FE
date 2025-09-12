@@ -839,6 +839,16 @@ const BASTForm = () => {
                             </div>
                         </div>
                     </div>
+                    {/* Legend / Petunjuk Pengunggahan */}
+                    <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-md text-sm text-gray-800">
+                        <strong className="block font-medium text-blue-800 mb-2">Untuk Menghindari Kegagalan Upload:</strong>
+                        <ul className="space-y-1">
+                            <li>• Dimohon untuk nama file yang diupload tidak menggunakan karakter: <code className="bg-gray-200 px-1 rounded">:%$#@-_'"</code></li>
+                            <li>• Ukuran <strong>Copy Kontrak</strong> maksimal <strong>10 MB</strong></li>
+                            <li>• Ukuran <strong>Dokumen Pendukung</strong> maksimal <strong>10 MB</strong></li>
+                            <li>• Dokumen yang di-upload harus dalam bentuk <strong>.pdf</strong> (disarankan untuk kepastian kompatibilitas)</li>
+                        </ul>
+                    </div>
                 </div>
 
                 {/* Dokumen Pendukung */}
