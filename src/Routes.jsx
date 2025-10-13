@@ -10,7 +10,7 @@ import SigninOidc from "pages/auth/SigninOidc";
 import VendorLogin from "pages/vendor-login";
 import VendorDashboard from "pages/vendor-dashboard";
 // import InvoiceUpload from "pages/invoice-upload";
-// import InternalStaffDashboard from "pages/internal-staff-dashboard";
+import InternalStaffDashboard from "pages/internal-staff-dashboard";
 // import InternalPicDashboard from "pages/internal-pic-dashboard";
 // import DocumentReview from "pages/document-review";
 // import InvoiceStatusTracking from "pages/bast-status-tracking";
@@ -53,7 +53,7 @@ const Routes = () => {
           {/* <Route path="/invoice-upload" element={<InvoiceUpload />} />
           <Route path="/contract-upload" element={<ContractUpload />} />
           <Route path="/receipt-upload" element={<ReceiptUpload />} /> */}
-          {/* <Route path="/internal-staff-dashboard" element={<InternalStaffDashboard />} /> */}
+          <Route path="/internal-staff-dashboard" element={<InternalStaffDashboard />} />
           {/* <Route path="/internal-pic-dashboard" element={<InternalPicDashboard />} /> */}
           {/* <Route path="/document-review" element={<DocumentReview />} /> */}
           {/* <Route path="/bast-status-tracking" element={<InvoiceStatusTracking />} /> */}
