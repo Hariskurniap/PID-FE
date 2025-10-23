@@ -1,9 +1,9 @@
 // src/pages/bast/components/ApproverBastForm.jsx
-import React, { useState, useEffect } from 'react';
-import Input from '../../../components/ui/Input';
-import Button from '../../../components/ui/Button';
-import Textarea from '../../../components/ui/Textarea';
-import { DownloadIcon, FileIcon, CheckCircle, XCircle } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import Input from "../../../components/ui/Input";
+import Button from "../../../components/ui/Button";
+import Textarea from "../../../components/ui/Textarea";
+import { DownloadIcon, FileIcon, CheckCircle, XCircle } from "lucide-react";
 
 const ApproverBastForm = () => {
   const [bastData, setBastData] = useState(null);
@@ -11,63 +11,66 @@ const ApproverBastForm = () => {
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    pejabatApproval: '',
-    notes: ''
+    pejabatApproval: "",
+    notes: "",
   });
   const [errors, setErrors] = useState({});
   const [approverStatus, setApproverStatus] = useState(null); // 'found', 'not-found', null
-  
+
   // State untuk modal
   const [showApproverModal, setShowApproverModal] = useState(false);
   const [modalContent, setModalContent] = useState({
-    title: '',
-    message: '',
-    type: '' // 'success', 'error'
+    title: "",
+    message: "",
+    type: "", // 'success', 'error'
   });
-  
+
   // Ambil idBast dari URL
   const urlParams = new URLSearchParams(window.location.search);
-  const idBast = urlParams.get('id');
+  const idBast = urlParams.get("id");
 
   // Mapping status ke label
   const statusLabels = {
-    DRAFT: 'Draft',
-    WAITING_REVIEW: 'Menunggu Review',
-    DIPERIKSA_USER: 'Diperiksa User',
-    REJECTED: 'Ditolak',
-    APPROVED: 'Disetujui'
+    DRAFT: "Draft",
+    WAITING_REVIEW: "Menunggu Review",
+    WAITING_APPROVER: "Menunggu Approver",
+    REJECTED: "Ditolak",
+    APPROVED: "Disetujui",
   };
 
   useEffect(() => {
     if (!idBast) {
-      setError('ID BAST tidak ditemukan di URL');
+      setError("ID BAST tidak ditemukan di URL");
       setLoading(false);
       return;
     }
-    
+
     const fetchBastData = async () => {
-      const token = localStorage.getItem('token');
-      const headers = { 'Authorization': `Bearer ${token}` };
+      const token = localStorage.getItem("token");
+      const headers = { Authorization: `Bearer ${token}` };
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/bast/${idBast}`, { headers });
+        const res = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/api/bast/${idBast}`,
+          { headers }
+        );
         if (!res.ok) {
-          throw new Error('Data BAST tidak ditemukan');
+          throw new Error("Data BAST tidak ditemukan");
         }
         const data = await res.json();
         setBastData(data);
         // Set pejabatApproval jika sudah ada sebelumnya
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          pejabatApproval: data.pejabatApproval || ''
+          pejabatApproval: data.pejabatApproval || "",
         }));
       } catch (err) {
-        console.error('Gagal memuat data BAST:', err);
+        console.error("Gagal memuat data BAST:", err);
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchBastData();
   }, [idBast]);
 
@@ -75,52 +78,69 @@ const ApproverBastForm = () => {
   const handleCheckApprover = async () => {
     const email = formData.approverBastVendor;
     if (!email) {
-      setErrors(prev => ({ ...prev, approverBastVendor: 'Email harus diisi' }));
+      setErrors((prev) => ({
+        ...prev,
+        approverBastVendor: "Email harus diisi",
+      }));
       return;
     }
-    
+
     // Validasi format email
     if (!/\S+@\S+\.\S+/.test(email)) {
-      setErrors(prev => ({ ...prev, approverBastVendor: 'Format email tidak valid' }));
+      setErrors((prev) => ({
+        ...prev,
+        approverBastVendor: "Format email tidak valid",
+      }));
       return;
     }
-    
-    const token = localStorage.getItem('token');
-    const headers = { 'Authorization': `Bearer ${token}` };
-    
+
+    const token = localStorage.getItem("token");
+    const headers = { Authorization: `Bearer ${token}` };
+
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/${encodeURIComponent(email)}`, { headers });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/users/${encodeURIComponent(
+          email
+        )}`,
+        { headers }
+      );
       const userData = await res.json();
-      
-      if (res.ok && userData && ['vendorreview'].includes(userData.role)) {
-        setApproverStatus('found');
-        setErrors(prev => ({ ...prev, approverBastVendor: undefined }));
+
+      if (res.ok && userData && ["vendorreview"].includes(userData.role)) {
+        setApproverStatus("found");
+        setErrors((prev) => ({ ...prev, approverBastVendor: undefined }));
         // Tampilkan modal sukses
         setModalContent({
-          title: 'Approver Ditemukan',
-          message: 'Email approver valid dan ditemukan dalam sistem.',
-          type: 'success'
+          title: "Approver Ditemukan",
+          message: "Email approver valid dan ditemukan dalam sistem.",
+          type: "success",
         });
         setShowApproverModal(true);
       } else {
-        setApproverStatus('not-found');
-        setErrors(prev => ({ ...prev, approverBastVendor: 'Email tidak ditemukan atau bukan approver' }));
+        setApproverStatus("not-found");
+        setErrors((prev) => ({
+          ...prev,
+          approverBastVendor: "Email tidak ditemukan atau bukan approver",
+        }));
         // Tampilkan modal error
         setModalContent({
-          title: 'Approver Tidak Valid',
-          message: 'Email tidak ditemukan atau bukan merupakan approver.',
-          type: 'error'
+          title: "Approver Tidak Valid",
+          message: "Email tidak ditemukan atau bukan merupakan approver.",
+          type: "error",
         });
         setShowApproverModal(true);
       }
     } catch (err) {
-      console.error('Gagal cek approver:', err);
-      setErrors(prev => ({ ...prev, approverBastVendor: 'Gagal memeriksa email' }));
+      console.error("Gagal cek approver:", err);
+      setErrors((prev) => ({
+        ...prev,
+        approverBastVendor: "Gagal memeriksa email",
+      }));
       // Tampilkan modal error
       setModalContent({
-        title: 'Kesalahan Server',
-        message: 'Terjadi kesalahan saat memeriksa email approver.',
-        type: 'error'
+        title: "Kesalahan Server",
+        message: "Terjadi kesalahan saat memeriksa email approver.",
+        type: "error",
       });
       setShowApproverModal(true);
     }
@@ -128,68 +148,74 @@ const ApproverBastForm = () => {
 
   const validateForm = (isApproval = true) => {
     const newErrors = {};
-    
+
     if (!formData.approverBastVendor) {
-      newErrors.approverBastVendor = 'Approval Vendor wajib diisi';
+      newErrors.approverBastVendor = "Approval Vendor wajib diisi";
     } else if (!/\S+@\S+\.\S+/.test(formData.approverBastVendor)) {
-      newErrors.approverBastVendor = 'Format email tidak valid';
-    } else if (approverStatus !== 'found') {
-      newErrors.approverBastVendor = 'Harap cek validitas email approver terlebih dahulu';
+      newErrors.approverBastVendor = "Format email tidak valid";
+    } else if (approverStatus !== "found") {
+      newErrors.approverBastVendor =
+        "Harap cek validitas email approver terlebih dahulu";
     }
-    
+
     // Untuk penolakan, catatan wajib diisi
     if (!isApproval && !formData.notes.trim()) {
-      newErrors.notes = 'Catatan penolakan wajib diisi';
+      newErrors.notes = "Catatan penolakan wajib diisi";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleApprove = async () => {
     // if (!validateForm(true)) return;
-    
+
     setSubmitting(true);
-    const token = localStorage.getItem('token');
-    const userEmail = localStorage.getItem('userName');
-    
+    const token = localStorage.getItem("token");
+    const userEmail = localStorage.getItem("userName");
+
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/bast/${idBast}/approveVendor-user`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          userEmail,
-          approverBastVendor: formData.approverBastVendor,
-          note: formData.notes
-        })
-      });
-      
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_API_BASE_URL
+        }/api/bast/${idBast}/approveVendor-user`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            userEmail,
+            approverBastVendor: formData.approverBastVendor,
+            note: formData.notes,
+          }),
+        }
+      );
+
       if (!response.ok) {
-        throw new Error('Gagal menyetujui BAST');
+        throw new Error("Gagal menyetujui BAST");
       }
-      
+
       // Tampilkan modal sukses
       setModalContent({
-        title: 'BAST Disetujui',
-        message: 'BAST berhasil disetujui dan akan dialihkan ke dashboard.',
-        type: 'success'
+        title: "BAST Disetujui",
+        message: "BAST berhasil disetujui dan akan dialihkan ke dashboard.",
+        type: "success",
       });
       setShowApproverModal(true);
-      
+
       // Redirect setelah 3 detik
       setTimeout(() => {
-        window.location.href = '/approver-dashboard';
+        window.location.href = "/approver-dashboard";
       }, 3000);
     } catch (err) {
       console.error(err);
       // Tampilkan modal error
       setModalContent({
-        title: 'Gagal Menyetujui',
+        title: "Gagal Menyetujui",
         message: err.message,
-        type: 'error'
+        type: "error",
       });
       setShowApproverModal(true);
     } finally {
@@ -199,47 +225,52 @@ const ApproverBastForm = () => {
 
   const handleReject = async () => {
     // if (!validateForm(false)) return;
-    
+
     setSubmitting(true);
-    const token = localStorage.getItem('token');
-    const userEmail = localStorage.getItem('userName');
-    
+    const token = localStorage.getItem("token");
+    const userEmail = localStorage.getItem("userName");
+
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/bast/${idBast}/rejectApprover`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          userEmail,
-          note: formData.notes
-        })
-      });
-      
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_API_BASE_URL
+        }/api/bast/${idBast}/rejectApprover`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            userEmail,
+            note: formData.notes,
+          }),
+        }
+      );
+
       if (!response.ok) {
-        throw new Error('Gagal menolak BAST');
+        throw new Error("Gagal menolak BAST");
       }
-      
+
       // Tampilkan modal sukses
       setModalContent({
-        title: 'BAST Ditolak',
-        message: 'BAST berhasil ditolak dan akan dialihkan ke dashboard.',
-        type: 'success'
+        title: "BAST Ditolak",
+        message: "BAST berhasil ditolak dan akan dialihkan ke dashboard.",
+        type: "success",
       });
       setShowApproverModal(true);
-      
+
       // Redirect setelah 3 detik
       setTimeout(() => {
-        window.location.href = '/approver-dashboard';
+        window.location.href = "/approver-dashboard";
       }, 3000);
     } catch (err) {
       console.error(err);
       // Tampilkan modal error
       setModalContent({
-        title: 'Gagal Menolak',
+        title: "Gagal Menolak",
         message: err.message,
-        type: 'error'
+        type: "error",
       });
       setShowApproverModal(true);
     } finally {
@@ -273,12 +304,12 @@ const ApproverBastForm = () => {
 
   // Helper: Format tanggal
   const formatDate = (dateString) => {
-    if (!dateString) return '-';
+    if (!dateString) return "-";
     const date = new Date(dateString);
-    return date.toLocaleDateString('id-ID', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
+    return date.toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
     });
   };
 
@@ -286,7 +317,9 @@ const ApproverBastForm = () => {
   const FileLink = ({ path, filename, label }) => {
     const baseURL = import.meta.env.VITE_API_BASE_URL;
     if (!path) return <span className="text-muted-foreground">-</span>;
-    const fullPath = path.startsWith('http') ? path : `${baseURL}/${path.replace(/\\/g, '/')}`;
+    const fullPath = path.startsWith("http")
+      ? path
+      : `${baseURL}/${path.replace(/\\/g, "/")}`;
     return (
       <div className="flex items-center gap-2">
         <FileIcon size={16} className="text-blue-500" />
@@ -295,9 +328,9 @@ const ApproverBastForm = () => {
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-600 hover:underline text-sm"
-          title={filename || 'Lihat dokumen'}
+          title={filename || "Lihat dokumen"}
         >
-          {filename || 'Lihat Dokumen'}
+          {filename || "Lihat Dokumen"}
         </a>
         <a
           href={fullPath}
@@ -315,15 +348,23 @@ const ApproverBastForm = () => {
     <div className="bg-card border border-border rounded-lg p-6 space-y-8">
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-foreground">Approve BAST</h3>
-        <p className="text-sm text-muted-foreground">ID: <strong>{bastData.idBast}</strong></p>
+        <p className="text-sm text-muted-foreground">
+          ID: <strong>{bastData.idBast}</strong>
+        </p>
         <div className="mt-2">
-          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-            bastData.status === 'DRAFT' ? 'bg-gray-100 text-gray-800' :
-            bastData.status === 'WAITING_REVIEW' ? 'bg-yellow-100 text-yellow-800' :
-            bastData.status === 'DIPERIKSA_USER' ? 'bg-blue-100 text-blue-800' :
-            bastData.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
-            'bg-red-100 text-red-800'
-          }`}>
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-medium ${
+              bastData.status === "DRAFT"
+                ? "bg-gray-100 text-gray-800"
+                : bastData.status === "WAITING_REVIEW"
+                ? "bg-yellow-100 text-yellow-800"
+                : bastData.status === "WAITING_APPROVER"
+                ? "bg-blue-100 text-blue-800"
+                : bastData.status === "APPROVED"
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}
+          >
             {statusLabels[bastData.status] || bastData.status}
           </span>
         </div>
@@ -332,34 +373,22 @@ const ApproverBastForm = () => {
       <form className="space-y-6">
         {/* Informasi Umum */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Input
-            label="ID BAST"
-            value={bastData.idBast}
-            readOnly
-          />
+          <Input label="ID BAST" value={bastData.idBast} readOnly />
           <Input
             label="Status"
             value={statusLabels[bastData.status] || bastData.status}
             readOnly
           />
-          <Input
-            label="Nomor PO"
-            value={bastData.nomorPo || ''}
-            readOnly
-          />
-          <Input
-            label="Perihal"
-            value={bastData.perihal || ''}
-            readOnly
-          />
+          <Input label="Nomor PO" value={bastData.nomorPo || ""} readOnly />
+          <Input label="Perihal" value={bastData.perihal || ""} readOnly />
           <Input
             label="Nomor Kontrak"
-            value={bastData.nomorKontrak || ''}
+            value={bastData.nomorKontrak || ""}
             readOnly
           />
           <Input
             label="Reviewer BAST"
-            value={bastData.reviewerBast || ''}
+            value={bastData.reviewerBast || ""}
             readOnly
           />
           <Input
@@ -420,25 +449,12 @@ const ApproverBastForm = () => {
           )}
         </div> */}
 
-        {/* Keterangan/Notes */}
-        <div>
-          <Textarea
-            label="Keterangan"
-            value={formData.notes}
-            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-            placeholder="Tambahkan keterangan untuk review ini"
-            rows={3}
-            error={errors.notes}
-          />
-          {errors.notes && <p className="text-sm text-red-500 mt-1">{errors.notes}</p>}
-        </div>
-
         {/* Vendor */}
         <div>
           <h4 className="font-medium mb-4">Vendor</h4>
           <Input
             label="Nama Vendor"
-            value={bastData.vendor?.namaVendor || '-'}
+            value={bastData.vendor?.namaVendor || "-"}
             readOnly
           />
         </div>
@@ -450,7 +466,7 @@ const ApproverBastForm = () => {
             <label className="flex items-center">
               <input
                 type="radio"
-                checked={bastData.kesesuaianJumlahSpesifikasi === 'Sesuai'}
+                checked={bastData.kesesuaianJumlahSpesifikasi === "Sesuai"}
                 className="mr-2"
                 readOnly
                 disabled
@@ -460,24 +476,26 @@ const ApproverBastForm = () => {
             <label className="flex items-center">
               <input
                 type="radio"
-                checked={bastData.kesesuaianJumlahSpesifikasi === 'Tidak Sesuai'}
-                className="mr-2"
-                readOnly
+                checked={
+                  bastData.kesesuaianJumlahSpesifikasi === "Tidak Sesuai"
+                }
                 disabled
+                readOnly
+                className="mr-2 appearance-none h-4 w-4 rounded-full border border-gray-400 bg-gray-100 checked:bg-gray-400 checked:border-gray-400"
               />
               Tidak Sesuai
             </label>
           </div>
-          {bastData.kesesuaianJumlahSpesifikasi === 'Tidak Sesuai' && (
+          {bastData.kesesuaianJumlahSpesifikasi === "Tidak Sesuai" && (
             <div className="mt-4 space-y-4">
               <Input
                 label="Alasan Ketidaksesuaian"
-                value={bastData.alasanKetidaksesuaian || ''}
+                value={bastData.alasanKeterlambatan || ""}
                 readOnly
               />
               <Input
                 label="Denda Keterlambatan (IDR)"
-                value={bastData.idrDendaKeterlambatan || ''}
+                value={bastData.idrDendaKeterlambatan || ""}
                 readOnly
               />
             </div>
@@ -515,19 +533,88 @@ const ApproverBastForm = () => {
                       <td className="border px-3 py-2">{item.no}</td>
                       <td className="border px-3 py-2">{item.pekerjaan}</td>
                       <td className="border px-3 py-2">{item.progress}%</td>
-                      <td className="border px-3 py-2">{item.nilaiTagihan}</td>
+                      <td className="border px-3 py-2 text-right">
+                        {item.nilaiTagihan}
+                      </td>
                       <td className="border px-3 py-2">{item.keterangan}</td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="5" className="border px-3 py-2 text-center text-muted-foreground">
+                    <td
+                      colSpan="5"
+                      className="border px-3 py-2 text-center text-muted-foreground"
+                    >
                       Tidak ada item
                     </td>
                   </tr>
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* 🧮 Bagian Total */}
+          <div className="mt-4 text-right font-medium bg-gray-50 p-3 rounded-lg">
+            {(() => {
+              // Hitung total nilai tagihan dari semua item
+              const totalAwal = bastData.detailTransaksi?.reduce(
+                (sum, item) => {
+                  const clean = parseInt(
+                    (item.nilaiTagihan || "0").toString().replace(/[^\d]/g, ""),
+                    10
+                  );
+                  return sum + (isNaN(clean) ? 0 : clean);
+                },
+                0
+              );
+
+              // Ambil denda (jika ada)
+              const denda =
+                bastData.kesesuaianJumlahSpesifikasi === "Tidak Sesuai"
+                  ? parseInt(
+                      (bastData.idrDendaKeterlambatan || "0")
+                        .toString()
+                        .replace(/[^\d]/g, ""),
+                      10
+                    ) || 0
+                  : 0;
+
+              // Hitung total akhir
+              const totalAkhir = totalAwal - denda;
+
+              // Fungsi format rupiah
+              const formatCurrency = (num) =>
+                new Intl.NumberFormat("id-ID", {
+                  style: "currency",
+                  currency: "IDR",
+                  minimumFractionDigits: 0,
+                }).format(num || 0);
+
+              return (
+                <>
+                  <div>
+                    Total Awal:{" "}
+                    <span className="text-blue-600">
+                      {formatCurrency(totalAwal)}
+                    </span>
+                  </div>
+
+                  {bastData.kesesuaianJumlahSpesifikasi === "Tidak Sesuai" &&
+                    denda > 0 && (
+                      <div className="text-red-600 mt-1">
+                        (-) Denda: {formatCurrency(denda)}
+                      </div>
+                    )}
+
+                  <div className="mt-1">
+                    Total Akhir:{" "}
+                    <span className="text-green-600 font-semibold">
+                      {formatCurrency(totalAkhir)}
+                    </span>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
 
@@ -537,21 +624,26 @@ const ApproverBastForm = () => {
           {bastData.dokumenPendukung?.length > 0 ? (
             <div className="space-y-3">
               {bastData.dokumenPendukung.map((doc, idx) => (
-                <div key={doc.id} className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 border rounded bg-gray-50">
+                <div
+                  key={doc.id}
+                  className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 border rounded bg-gray-50"
+                >
                   <div className="flex-1">
                     <strong>{doc.nama || `Dokumen ${idx + 1}`}</strong>
                   </div>
                   <div className="flex-1">
                     <FileLink
                       path={doc.filePath}
-                      filename={doc.filePath?.split('/').pop() || 'file.pdf'}
+                      filename={doc.filePath?.split("/").pop() || "file.pdf"}
                     />
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground">Tidak ada dokumen pendukung.</p>
+            <p className="text-muted-foreground">
+              Tidak ada dokumen pendukung.
+            </p>
           )}
         </div>
 
@@ -567,7 +659,7 @@ const ApproverBastForm = () => {
               />
               <Input
                 label="Nomor Faktur"
-                value={bastData.fakturPajak.nomorFaktur || ''}
+                value={bastData.fakturPajak.nomorFaktur || ""}
                 readOnly
               />
               <Input
@@ -577,47 +669,47 @@ const ApproverBastForm = () => {
               />
               <Input
                 label="Jumlah OPP"
-                value={bastData.fakturPajak.jumlahOpp || ''}
+                value={bastData.fakturPajak.jumlahOpp || ""}
                 readOnly
               />
               <Input
                 label="Jumlah PPn"
-                value={bastData.fakturPajak.jumlahPpn || ''}
+                value={bastData.fakturPajak.jumlahPpn || ""}
                 readOnly
               />
               <Input
                 label="Jumlah PPnBM"
-                value={bastData.fakturPajak.jumlahPpnBm || ''}
+                value={bastData.fakturPajak.jumlahPpnBm || ""}
                 readOnly
               />
               <Input
                 label="NPWP Penjual"
-                value={bastData.fakturPajak.npwpPenjual || ''}
+                value={bastData.fakturPajak.npwpPenjual || ""}
                 readOnly
               />
               <Input
                 label="Nama Penjual"
-                value={bastData.fakturPajak.namaPenjual || ''}
+                value={bastData.fakturPajak.namaPenjual || ""}
                 readOnly
               />
               <Input
                 label="Alamat Penjual"
-                value={bastData.fakturPajak.alamatPenjual || ''}
+                value={bastData.fakturPajak.alamatPenjual || ""}
                 readOnly
               />
               <Input
                 label="NPWP Lawan Transaksi"
-                value={bastData.fakturPajak.npwpLawanTransaksi || ''}
+                value={bastData.fakturPajak.npwpLawanTransaksi || ""}
                 readOnly
               />
               <Input
                 label="Nama Lawan Transaksi"
-                value={bastData.fakturPajak.namaLawanTransaksi || ''}
+                value={bastData.fakturPajak.namaLawanTransaksi || ""}
                 readOnly
               />
               <Input
                 label="Alamat Lawan Transaksi"
-                value={bastData.fakturPajak.alamatLawanTransaksi || ''}
+                value={bastData.fakturPajak.alamatLawanTransaksi || ""}
                 readOnly
               />
               <div>
@@ -633,27 +725,61 @@ const ApproverBastForm = () => {
           )}
         </div>
 
+        {/* Keterangan/Notes */}
+        <div>
+          <Textarea
+            label="Keterangan"
+            value={formData.notes}
+            onChange={(e) =>
+              setFormData({ ...formData, notes: e.target.value })
+            }
+            placeholder="Tambahkan keterangan untuk review ini"
+            rows={3}
+            error={errors.notes}
+          />
+          {errors.notes && (
+            <p className="text-sm text-red-500 mt-1">{errors.notes}</p>
+          )}
+        </div>
+
         {/* Tracking Log */}
         <div>
           <h4 className="font-medium mb-4">Riwayat Status</h4>
           {bastData.tracking?.length > 0 ? (
             <div className="space-y-3">
               {bastData.tracking.map((log, idx) => (
-                <div key={log.id} className="flex items-start gap-3 p-3 border rounded bg-gray-50 text-sm">
+                <div
+                  key={log.id}
+                  className="flex items-start gap-3 p-3 border rounded bg-gray-50 text-sm"
+                >
                   <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-xs font-bold">
                     {idx + 1}
                   </div>
                   <div className="flex-1">
                     <p>
-                      <strong>{statusLabels[log.statusBaru] || log.statusBaru}</strong>
+                      <strong>
+                        {statusLabels[log.statusBaru] || log.statusBaru}
+                      </strong>
                       {log.statusSebelumnya && (
-                        <> dari <em>{statusLabels[log.statusSebelumnya] || log.statusSebelumnya}</em></>
+                        <>
+                          {" "}
+                          dari{" "}
+                          <em>
+                            {statusLabels[log.statusSebelumnya] ||
+                              log.statusSebelumnya}
+                          </em>
+                        </>
                       )}
                     </p>
                     <p className="text-muted-foreground">
-                      Oleh: <strong>{log.userEmail}</strong> • {new Date(log.createdAt).toLocaleString('id-ID')}
+                      Oleh: <strong>{log.userEmail}</strong> •{" "}
+                      {new Date(log.createdAt).toLocaleString("id-ID")}
                     </p>
-                    {log.note && <p className="text-sm mt-1"><em>{log.note}</em></p>}
+                    {log.note && (
+                      <p className="text-sm mt-1">
+                        <em>{log.note}</em>
+                      </p>
+                    )}
                   </div>
                 </div>
               ))}
@@ -665,10 +791,7 @@ const ApproverBastForm = () => {
 
         {/* Aksi */}
         <div className="pt-6 border-t flex flex-col sm:flex-row gap-3">
-          <Button
-            variant="outline"
-            onClick={() => window.history.back()}
-          >
+          <Button variant="outline" onClick={() => window.history.back()}>
             Kembali
           </Button>
           <div className="flex-1"></div>
@@ -679,7 +802,7 @@ const ApproverBastForm = () => {
             className="flex items-center gap-2"
           >
             <XCircle size={16} />
-            {submitting ? 'Memproses...' : 'Tolak'}
+            {submitting ? "Memproses..." : "Tolak"}
           </Button>
           <Button
             onClick={handleApprove}
@@ -687,7 +810,7 @@ const ApproverBastForm = () => {
             className="flex items-center gap-2"
           >
             <CheckCircle size={16} />
-            {submitting ? 'Memproses...' : 'Setujui'}
+            {submitting ? "Memproses..." : "Setujui"}
           </Button>
         </div>
       </form>
@@ -697,15 +820,19 @@ const ApproverBastForm = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <div className="flex items-center justify-center mb-4">
-              {modalContent.type === 'success' ? (
+              {modalContent.type === "success" ? (
                 <CheckCircle className="text-green-500" size={48} />
               ) : (
                 <XCircle className="text-red-500" size={48} />
               )}
             </div>
-            <h3 className={`text-xl font-semibold text-center mb-2 ${
-              modalContent.type === 'success' ? 'text-green-600' : 'text-red-600'
-            }`}>
+            <h3
+              className={`text-xl font-semibold text-center mb-2 ${
+                modalContent.type === "success"
+                  ? "text-green-600"
+                  : "text-red-600"
+              }`}
+            >
               {modalContent.title}
             </h3>
             <p className="text-gray-700 text-center mb-6">
@@ -716,15 +843,20 @@ const ApproverBastForm = () => {
                 onClick={() => {
                   setShowApproverModal(false);
                   // Jika modal sukses setelah submit, redirect ke dashboard
-                  if (modalContent.type === 'success' && 
-                      (modalContent.title === 'BAST Disetujui' || modalContent.title === 'BAST Ditolak')) {
-                    window.location.href = '/approver-dashboard';
+                  if (
+                    modalContent.type === "success" &&
+                    (modalContent.title === "BAST Disetujui" ||
+                      modalContent.title === "BAST Ditolak")
+                  ) {
+                    window.location.href = "/approver-dashboard";
                   }
                 }}
               >
-                {modalContent.type === 'success' && 
-                 (modalContent.title === 'BAST Disetujui' || modalContent.title === 'BAST Ditolak')
-                 ? 'Kembali ke Dashboard' : 'Tutup'}
+                {modalContent.type === "success" &&
+                (modalContent.title === "BAST Disetujui" ||
+                  modalContent.title === "BAST Ditolak")
+                  ? "Kembali ke Dashboard"
+                  : "Tutup"}
               </Button>
             </div>
           </div>

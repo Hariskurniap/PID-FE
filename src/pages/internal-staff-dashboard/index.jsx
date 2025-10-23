@@ -1,220 +1,126 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Header from '../../components/ui/Header';
-import SessionTimeoutHandler from '../../components/ui/SessionTimeoutHandler';
-import FilterPanel from './components/FilterPanel';
-import InvoiceTable from './components/InvoiceTable';
-import SummaryPanel from './components/SummaryPanel';
-import BulkActionDialog from './components/BulkActionDialog';
-import Icon from '../../components/AppIcon';
-import Button from '../../components/ui/Button';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import Header from "../../components/ui/Header";
+import SessionTimeoutHandler from "../../components/ui/SessionTimeoutHandler";
+import StatusOverviewCard from "./components/StatusOverviewCard";
+import BastListCard from "./components/BastListCard.jsx";
+import SearchFilterCard from "./components/SearchFilterCard";
+import FloatingActionButton from "./components/FloatingActionButton";
 
 const InternalStaffDashboard = () => {
   const navigate = useNavigate();
-  const [isFilterCollapsed, setIsFilterCollapsed] = useState(false);
-  const [isSummaryCollapsed, setIsSummaryCollapsed] = useState(false);
-  const [selectedInvoices, setSelectedInvoices] = useState([]);
-  const [filters, setFilters] = useState({});
-  const [bulkAction, setBulkAction] = useState({ isOpen: false, action: null });
-  const [invoices, setInvoices] = useState([]);
-  const [filteredInvoices, setFilteredInvoices] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [isSessionActive, setIsSessionActive] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [searchFilters, setSearchFilters] = useState({});
+  const [isSearching, setIsSearching] = useState(false);
+  const [basts, setBasts] = useState([]);
+  const emailReviewer = localStorage.getItem("userEmail"); // Ambil email reviewer dari localStorage
 
-  const currentUser = {
-    name: localStorage.getItem('userName') || 'User',
-    role: localStorage.getItem('userRole') || 'staff',
-    id: localStorage.getItem('userId') || ''
-  };
+  const handleSearch = async (filters = {}) => {
+    setIsSearching(true);
+    setSearchFilters(filters);
+    try {
+      const token = localStorage.getItem("token");
+      const queryParams = new URLSearchParams({
+        search: filters.searchTerm || "",
+        orderby: filters.orderby || "",
+      });
 
-  // Fetch invoice data from API
-  useEffect(() => {
-    const fetchInvoices = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/invoice/all`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
-        if (!res.ok) throw new Error('Gagal mengambil data invoice');
-
-        const data = await res.json();
-        setInvoices(data);
-        setFilteredInvoices(data);
-        setLoading(false);
-      } catch (err) {
-        console.error(err);
-        setError(err.message || 'Terjadi kesalahan saat mengambil data');
-        setLoading(false);
-      }
-    };
-
-    fetchInvoices();
-  }, []);
-
-  // Apply filters
-  useEffect(() => {
-    let filtered = [...invoices];
-
-    if (filters.vendor) {
-      filtered = filtered.filter(invoice =>
-        invoice.vendor?.namaVendor?.toLowerCase().includes(filters.vendor.toLowerCase()) ||
-        invoice.vendor?.vendorCode?.toLowerCase().includes(filters.vendor.toLowerCase())
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/bast/adminlist`,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Gagal mengambil data");
+      setBasts(data);
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    } finally {
+      setIsSearching(false);
     }
+  };
 
-    if (filters.status && filters.status !== 'all') {
-      filtered = filtered.filter(invoice => invoice.status === filters.status);
+  const handleRefresh = () => {
+    setRefreshing(true);
+    handleSearch(searchFilters).finally(() => setRefreshing(false));
+  };
+
+  const handleViewDetails = (idBast) => {
+    navigate(`/bast/details?id=${idBast}`);
+  };
+
+  const handleReview = (idBast) => {
+    navigate(`/bast/inputSagr?id=${idBast}`);
+  };
+
+  useEffect(() => {
+    if (emailReviewer) {
+      handleSearch();
+    } else {
+      // Handle case when emailReviewer is not available
+      alert("Email reviewer tidak ditemukan. Silakan login kembali.");
+      navigate("/vendor-login");
     }
-
-    if (filters.urgency && filters.urgency !== 'all') {
-      if (filters.urgency === 'urgent') {
-        filtered = filtered.filter(invoice => invoice.isUrgent);
-      } else if (filters.urgency === 'overdue') {
-        filtered = filtered.filter(invoice => new Date(invoice.deadline) < new Date());
-      }
-    }
-
-    if (filters.assignedTo && filters.assignedTo !== 'all') {
-      if (filters.assignedTo === 'me') {
-        filtered = filtered.filter(invoice => invoice.assignedTo === currentUser.name);
-      } else if (filters.assignedTo === 'unassigned') {
-        filtered = filtered.filter(invoice => !invoice.assignedTo);
-      }
-    }
-
-    setFilteredInvoices(filtered);
-  }, [filters, invoices]);
-
-  const handleFiltersChange = (newFilters) => {
-    setFilters(newFilters);
-  };
-
-  const handleInvoiceSelect = (invoiceIds) => {
-    setSelectedInvoices(invoiceIds);
-  };
-
-  const handleBulkAction = (action) => {
-    setBulkAction({ isOpen: true, action });
-  };
-
-  const handleBulkActionConfirm = async (actionData) => {
-    console.log('Bulk action confirmed:', actionData);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setSelectedInvoices([]);
-    setBulkAction({ isOpen: false, action: null });
-    alert(`Berhasil memproses ${actionData.selectedCount} invoice`);
-  };
-
-  const handleSessionTimeout = () => {
-    navigate('/vendor-login');
-  };
-
-  const handleSessionExtend = async () => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return true;
-  };
+  }, [emailReviewer]);
 
   return (
     <div className="min-h-screen bg-background">
-      <Header userRole="staff" userName={currentUser.name} />
-
-      <SessionTimeoutHandler
-        isActive={isSessionActive}
-        onTimeout={handleSessionTimeout}
-        onExtend={handleSessionExtend}
-      />
-
-      <div className="pt-16 flex h-screen">
-        <FilterPanel
-          onFiltersChange={handleFiltersChange}
-          isCollapsed={isFilterCollapsed}
-          onToggleCollapse={() => setIsFilterCollapsed(!isFilterCollapsed)}
-        />
-
-        <div className="flex-1 flex flex-col min-w-0">
-          <div className="p-6 border-b border-border bg-card">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-heading font-bold text-foreground">
-                  Dashboard Internal Staff
-                </h1>
-                <p className="text-sm font-body text-muted-foreground mt-1">
-                  Kelola dan review invoice dari vendor dengan efisien
-                </p>
-              </div>
-              <div className="flex items-center space-x-3">
-                {/* <Button variant="outline" iconName="Download" iconPosition="left">
-                  Ekspor Data
-                </Button>
-                <Button
-                  variant="default"
-                  iconName="Plus"
-                  iconPosition="left"
-                  onClick={() => navigate('/document-review')}
-                >
-                  Review Manual
-                </Button> */}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-              <StatCard icon="FileText" color="primary" label="Total Invoice" value={filteredInvoices.length} />
-              <StatCard icon="Clock" color="warning" label="Menunggu Review" value={filteredInvoices.filter(i => i.status === 'pending').length} />
-              <StatCard icon="Eye" color="secondary" label="Disetujui" value={filteredInvoices.filter(i => i.status === 'approved').length} />
-              <StatCard icon="AlertTriangle" color="error" label="Ditolak" value={filteredInvoices.filter(i => i.status === 'rejected').length} />
-              <StatCard icon="Eye" color="secondary" label="Terbayar" value={filteredInvoices.filter(i => i.status === 'paid').length} />
-            </div>
+      <Header userRole="reviewer" userName={emailReviewer || "Reviewer"} />
+      <main className="pt-16 pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="mb-8">
+            <h1 className="text-2xl lg:text-3xl font-heading font-bold text-foreground mb-2">
+              Dashboard Reviewer
+            </h1>
+            <p className="text-sm font-caption text-muted-foreground">
+              Review dan pantau status BAST yang ditugaskan kepada Anda
+            </p>
           </div>
 
-          <div className="flex-1 p-6 overflow-hidden">
-            {loading ? (
-              <p>Memuat data...</p>
-            ) : error ? (
-              <p className="text-red-500">Error: {error}</p>
-            ) : (
-              <InvoiceTable
-                invoices={filteredInvoices}
-                onInvoiceSelect={handleInvoiceSelect}
-                onBulkAction={handleBulkAction}
-                selectedInvoices={selectedInvoices}
+          {/* <StatusOverviewCard
+            statusCounts={{
+              pending: basts.filter(b => b.status === 'PENDING').length,
+              approved: basts.filter(b => b.status === 'DISETUJUI_REVIEWER').length,
+              rejected: basts.filter(b => b.status === 'DITOLAK_REVIEWER').length,
+              draft: basts.filter(b => b.status === 'DRAFT').length
+            }}
+            onStatusClick={(status) => handleSearch({ status })}
+          /> */}
+          <StatusOverviewCard
+            reviewerEmail={emailReviewer}
+            onStatusClick={(status) => handleSearch({ status })}
+          />
+
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div className="xl:col-span-3 space-y-6">
+              <SearchFilterCard
+                onSearch={handleSearch}
+                onReset={() => handleSearch({})}
+                isSearching={isSearching}
               />
-            )}
+              <BastListCard
+                basts={basts}
+                onViewDetails={handleViewDetails}
+                onReview={handleReview}
+                onRefresh={handleRefresh}
+                loading={refreshing}
+              />
+            </div>
           </div>
         </div>
+      </main>
 
-        {/* <SummaryPanel
-          isCollapsed={isSummaryCollapsed}
-          onToggleCollapse={() => setIsSummaryCollapsed(!isSummaryCollapsed)}
-        /> */}
-      </div>
-
-      <BulkActionDialog
-        isOpen={bulkAction.isOpen}
-        onClose={() => setBulkAction({ isOpen: false, action: null })}
-        action={bulkAction.action}
-        selectedCount={selectedInvoices.length}
-        onConfirm={handleBulkActionConfirm}
+      <SessionTimeoutHandler
+        timeoutDuration={600000}
+        warningDuration={60000}
+        onTimeout={() => navigate("/vendor-login")}
+        onExtend={() => new Promise((res) => setTimeout(res, 1000))}
+        isActive={true}
       />
     </div>
   );
 };
-
-// Reusable stat card
-const StatCard = ({ icon, color, label, value }) => (
-  <div className={`p-4 bg-${color}/10 rounded-lg border border-${color}/20`}>
-    <div className="flex items-center space-x-3">
-      <Icon name={icon} size={20} className={`text-${color}`} />
-      <div>
-        <div className={`text-lg font-heading font-bold text-${color}`}>{value}</div>
-        <div className={`text-sm font-caption text-${color}/80`}>{label}</div>
-      </div>
-    </div>
-  </div>
-);
 
 export default InternalStaffDashboard;

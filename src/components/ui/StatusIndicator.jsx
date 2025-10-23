@@ -11,6 +11,15 @@ const bastStatusConfig = {
     textColor: 'text-muted-foreground',
     borderColor: 'border-muted/20',
   },
+  REJECT_FROM_REVIEW: {
+  label: 'Reject From Review',
+  englishLabel: 'Reject From Review',
+  icon: 'FileText',
+  color: 'red',
+  bgColor: 'bg-red-100',
+  textColor: 'text-red-600',
+  borderColor: 'border-red-200',
+},
   WAITING_REVIEW: {
     label: 'Menunggu Review',
     englishLabel: 'Pending Review',
@@ -20,14 +29,14 @@ const bastStatusConfig = {
     textColor: 'text-warning',
     borderColor: 'border-warning/20',
   },
-  DIPERIKSA_USER: {
-    label: 'Sedang Diperiksa',
-    englishLabel: 'Under Review by User',
-    icon: 'Eye',
-    color: 'secondary',
-    bgColor: 'bg-secondary/10',
-    textColor: 'text-secondary',
-    borderColor: 'border-secondary/20',
+  WAITING_APPROVER: {
+    label: 'Menunggu Approver',
+    englishLabel: 'Pending Approver',
+    icon: 'Clock',
+    color: 'warning',
+    bgColor: 'bg-warning/10',
+    textColor: 'text-warning',
+    borderColor: 'border-warning/20',
   },
   DISETUJUI_APPROVER: {
     label: 'Disetujui Approver',

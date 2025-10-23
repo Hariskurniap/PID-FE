@@ -31,7 +31,7 @@ const StatusOverviewCard = ({ reviewerEmail, onStatusClick }) => {
   const statusConfig = [
     { key: 'DRAFT', label: 'Draft', icon: 'FileText', color: 'text-gray-500', bgColor: 'bg-gray-100', borderColor: 'border-gray-200', count: statusCounts.DRAFT || 0 },
     { key: 'WAITING_REVIEW', label: 'Menunggu Review', icon: 'Clock', color: 'text-primary', bgColor: 'bg-primary/10', borderColor: 'border-primary/20', count: statusCounts.WAITING_REVIEW || 0 },
-    { key: 'DIPERIKSA_USER', label: 'Diperiksa User', icon: 'UserCheck', color: 'text-blue-500', bgColor: 'bg-blue-100', borderColor: 'border-blue-200', count: statusCounts.DIPERIKSA_USER || 0 },
+    { key: 'WAITING_APPROVER', label: 'Waiting Approver', englishLabel: 'Waiting Approver', icon: 'UserCheck', color: 'text-blue-500', bgColor: 'bg-blue-100', borderColor: 'border-blue-200', count: statusCounts.WAITING_APPROVER || 0 },
     { key: 'DISETUJUI_APPROVER', label: 'Disetujui Approver', icon: 'CheckCircle2', color: 'text-green-500', bgColor: 'bg-green-100', borderColor: 'border-green-200', count: statusCounts.DISETUJUI_APPROVER || 0 },
     { key: 'DISETUJUI_VENDOR', label: 'Disetujui Vendor', icon: 'User', color: 'text-teal-500', bgColor: 'bg-teal-100', borderColor: 'border-teal-200', count: statusCounts.DISETUJUI_VENDOR || 0 },
     { key: 'INPUT_SAGR', label: 'Input SAGR', icon: 'Edit', color: 'text-yellow-600', bgColor: 'bg-yellow-100', borderColor: 'border-yellow-200', count: statusCounts.INPUT_SAGR || 0 },

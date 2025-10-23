@@ -12,6 +12,21 @@ import {
   SaveIcon,
 } from "lucide-react";
 
+// Helper: format angka jadi IDR format
+const formatCurrency = (value) => {
+  if (!value) return "";
+  const number = value.toString().replace(/[^\d]/g, "");
+  return number.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+};
+
+// helper: parse "1.000.000" atau number menjadi integer (0 jika kosong)
+const parseCurrency = (value) => {
+  if (value === null || value === undefined) return 0;
+  const s = typeof value === "number" ? String(value) : value.toString();
+  const digits = s.replace(/[^\d]/g, "");
+  return parseInt(digits, 10) || 0;
+};
+
 const BASTForm = () => {
   const [formData, setFormData] = useState({
     idBast: `BAST-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
@@ -25,8 +40,8 @@ const BASTForm = () => {
     tanggalAkhirKontrak: "",
     tanggalPenyerahanBarangJasa: "",
     kesesuaianJumlahSpesifikasi: "Sesuai",
-    alasanKetidaksesuaian: "",
-    idrDendaKeterlambatan: 0,
+    alasanKeterlambatan: "",
+    idrDendaKeterlambatan: "",
     copyKontrak: null,
     items: [
       { no: 1, pekerjaan: "", progress: "0", nilaiTagihan: "", keterangan: "" },
@@ -67,14 +82,13 @@ const BASTForm = () => {
     return `${day}-${month}-${year}`;
   };
 
-  const formatDateForInput = (isoString) => {
-    if (!isoString) return "";
-    const date = new Date(isoString);
-    if (isNaN(date.getTime())) return "";
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${day}/${month}/${year}`;
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return "";
+    const d = new Date(dateString);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
 
   // State tambahan untuk pencarian kontrak
@@ -93,6 +107,9 @@ const BASTForm = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [redirectToDashboard, setRedirectToDashboard] = useState(false);
+
+  // 🔴 State untuk menandai field yang sudah disentuh (untuk visual error saat submit)
+  const [touchedFields, setTouchedFields] = useState(new Set());
 
   // Modal & Popup
   const [showFakturModal, setShowFakturModal] = useState(false);
@@ -211,18 +228,13 @@ const BASTForm = () => {
       }));
       return;
     }
-
     const token = localStorage.getItem("token");
     if (!token) {
       alert("Token tidak ditemukan. Silakan login ulang.");
       return;
     }
-
     setIsSearchingKontrak(true);
     setErrors((prev) => ({ ...prev, nomorKontrak: undefined }));
-
-    
-
     try {
       const response = await fetch(
         `${
@@ -237,28 +249,28 @@ const BASTForm = () => {
           },
         }
       );
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
       const result = await response.json();
       const contracts = result.values || [];
-
       if (contracts.length === 0) {
         alert("Tidak ada kontrak ditemukan. Silakan isi manual.");
         return;
       }
-
       if (contracts.length === 1) {
         // ✅ Otomatis isi form
         const kontrak = contracts[0];
         setFormData((prev) => ({
           ...prev,
-          nomorKontrak: kontrak.number || prev.nomorKontrak, // ✅ Isi nomor kontrak
-          perihal: kontrak.partnerName || kontrak.description || prev.perihal,
-          tanggalMulaiKontrak: kontrak.date ? formatDateForInput(kontrak.date) : prev.tanggalMulaiKontrak, // ✅ BENAR
-                              tanggalAkhirKontrak: kontrak.expireDate ? formatDateForInput(kontrak.expireDate) : prev.tanggalAkhirKontrak, // ✅ BENAR
+          nomorKontrak: kontrak.number || prev.nomorKontrak,
+          perihal: kontrak.subject || prev.perihal,
+          tanggalMulaiKontrak: kontrak.date
+            ? formatDateForInput(kontrak.date)
+            : prev.tanggalMulaiKontrak,
+          tanggalAkhirKontrak: kontrak.expireDate
+            ? formatDateForInput(kontrak.expireDate)
+            : prev.tanggalAkhirKontrak,
         }));
         alert("Data kontrak berhasil diisi otomatis!");
       } else {
@@ -316,6 +328,7 @@ const BASTForm = () => {
     const numericValue = value.replace(/\D/g, "");
     return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
+
   const handleCurrencyChange = (e, field) => {
     const rawValue = e.target.value;
     const formattedValue = formatCurrency(rawValue);
@@ -328,6 +341,7 @@ const BASTForm = () => {
     newItems[index][field] = value;
     setFormData((prev) => ({ ...prev, items: newItems }));
   };
+
   const addItem = () => {
     const newItem = {
       no: formData.items.length + 1,
@@ -338,6 +352,7 @@ const BASTForm = () => {
     };
     setFormData((prev) => ({ ...prev, items: [...prev.items, newItem] }));
   };
+
   const removeItem = (index) => {
     if (formData.items.length <= 1) return;
     const newItems = formData.items.filter((_, i) => i !== index);
@@ -386,6 +401,7 @@ const BASTForm = () => {
     }));
     setErrors((prev) => ({ ...prev, dokumenPendukung: undefined }));
   };
+
   const removeDokumenPendukung = (id) => {
     if (formData.dokumenPendukung.length <= 1) {
       setErrors((prev) => ({
@@ -399,6 +415,7 @@ const BASTForm = () => {
       dokumenPendukung: prev.dokumenPendukung.filter((d) => d.id !== id),
     }));
   };
+
   const handleDokumenChange = (id, field, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -407,6 +424,7 @@ const BASTForm = () => {
       ),
     }));
   };
+
   const handleDokumenFileChange = (id, e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -438,6 +456,7 @@ const BASTForm = () => {
       detailTransaksi: [...prev.detailTransaksi, newDetail],
     }));
   };
+
   const removeDetailTransaksi = (id) => {
     if (formData.detailTransaksi.length <= 1) return;
     setFormData((prev) => ({
@@ -445,6 +464,7 @@ const BASTForm = () => {
       detailTransaksi: prev.detailTransaksi.filter((d) => d.id !== id),
     }));
   };
+
   const handleDetailChange = (id, field, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -454,12 +474,49 @@ const BASTForm = () => {
     }));
   };
 
+  // 🔴 Fungsi untuk menandai semua field sebagai touched
+  const markAllFieldsAsTouched = () => {
+    const fields = new Set([
+      "invoiceTypeId",
+      "nomorPo",
+      "vendorId",
+      "perihal",
+      "nomorKontrak",
+      "reviewerBast",
+      "tanggalMulaiKontrak",
+      "tanggalAkhirKontrak",
+      "tanggalPenyerahanBarangJasa",
+      "copyKontrak",
+      "alasanKeterlambatan",
+      "idrDendaKeterlambatan",
+      "dokumenPendukung",
+      // "statusFaktur",
+      // "nomorFaktur",
+      // "tanggalFaktur",
+      // "jumlahOpp",
+      // "jumlahPpn",
+      // "npwpPenjual",
+      // "namaPenjual",
+      // "alamatPenjual",
+      // "npwpLawanTransaksi",
+      // "namaLawanTransaksi",
+      // "alamatLawanTransaksi",
+      "berkas",
+    ]);
+    // Tambahkan item fields
+    formData.items.forEach((_, idx) => {
+      fields.add(`pekerjaan_${idx}`);
+      fields.add(`nilaiTagihan_${idx}`);
+    });
+    setTouchedFields(fields);
+  };
+
   // Validasi (tidak diubah)
   const validate = () => {
     const newErrors = {};
     if (!formData.invoiceTypeId)
       newErrors.invoiceTypeId = "Jenis Pengadaan harus dipilih";
-    if (!formData.nomorPo) newErrors.nomorPo = "Nomor PO harus diisi";
+    // if (!formData.nomorPo) newErrors.nomorPo = "Nomor PO harus diisi";
     if (!formData.vendorId) newErrors.vendorId = "Nama Vendor harus dipilih";
     if (!formData.perihal) newErrors.perihal = "Perihal harus diisi";
     if (!formData.nomorKontrak)
@@ -471,12 +528,12 @@ const BASTForm = () => {
     if (!formData.tanggalAkhirKontrak)
       newErrors.tanggalAkhirKontrak = "Tanggal Akhir Kontrak harus diisi";
     if (!formData.tanggalPenyerahanBarangJasa)
-      newErrors.tanggalPenyerahanBarangJasa = "Tanggal Penyerahan harus diisi";
+      newErrors.tanggalPenyerahanBarangJasa = "Tanggal BA harus diisi";
     if (!formData.copyKontrak)
       newErrors.copyKontrak = "Copy Kontrak harus diunggah";
     if (formData.kesesuaianJumlahSpesifikasi === "Tidak Sesuai") {
-      if (!formData.alasanKetidaksesuaian)
-        newErrors.alasanKetidaksesuaian = "Alasan ketidaksesuaian harus diisi";
+      if (!formData.alasanKeterlambatan)
+        newErrors.alasanKeterlambatan = "Alasan ketidaksesuaian harus diisi";
       if (!formData.idrDendaKeterlambatan)
         newErrors.idrDendaKeterlambatan = "Denda keterlambatan harus diisi";
     }
@@ -489,27 +546,28 @@ const BASTForm = () => {
     if (!formData.dokumenPendukung.some((d) => d.file)) {
       newErrors.dokumenPendukung = "Minimal 1 dokumen pendukung harus diunggah";
     }
-    if (!formData.statusFaktur)
-      newErrors.statusFaktur = "Status Faktur harus diisi";
-    if (!formData.nomorFaktur)
-      newErrors.nomorFaktur = "Nomor Faktur harus diisi";
-    if (!formData.tanggalFaktur)
-      newErrors.tanggalFaktur = "Tanggal Faktur harus diisi";
-    if (!formData.jumlahOpp) newErrors.jumlahOpp = "Jumlah OPP harus diisi";
-    if (!formData.jumlahPpn) newErrors.jumlahPpn = "Jumlah PPn harus diisi";
-    if (!formData.npwpPenjual)
-      newErrors.npwpPenjual = "NPWP Penjual harus diisi";
-    if (!formData.namaPenjual)
-      newErrors.namaPenjual = "Nama Penjual harus diisi";
-    if (!formData.alamatPenjual)
-      newErrors.alamatPenjual = "Alamat Penjual harus diisi";
-    if (!formData.npwpLawanTransaksi)
-      newErrors.npwpLawanTransaksi = "NPWP Lawan Transaksi harus diisi";
-    if (!formData.namaLawanTransaksi)
-      newErrors.namaLawanTransaksi = "Nama Lawan Transaksi harus diisi";
-    if (!formData.alamatLawanTransaksi)
-      newErrors.alamatLawanTransaksi = "Alamat Lawan Transaksi harus diisi";
+    // if (!formData.statusFaktur)
+    //   newErrors.statusFaktur = "Status Faktur harus diisi";
+    // if (!formData.nomorFaktur)
+    //   newErrors.nomorFaktur = "Nomor Faktur harus diisi";
+    // if (!formData.tanggalFaktur)
+    //   newErrors.tanggalFaktur = "Tanggal Faktur harus diisi";
+    // if (!formData.jumlahOpp) newErrors.jumlahOpp = "Jumlah OPP harus diisi";
+    // if (!formData.jumlahPpn) newErrors.jumlahPpn = "Jumlah PPn harus diisi";
+    // if (!formData.npwpPenjual)
+    //   newErrors.npwpPenjual = "NPWP Penjual harus diisi";
+    // if (!formData.namaPenjual)
+    //   newErrors.namaPenjual = "Nama Penjual harus diisi";
+    // if (!formData.alamatPenjual)
+    //   newErrors.alamatPenjual = "Alamat Penjual harus diisi";
+    // if (!formData.npwpLawanTransaksi)
+    //   newErrors.npwpLawanTransaksi = "NPWP Lawan Transaksi harus diisi";
+    // if (!formData.namaLawanTransaksi)
+    //   newErrors.namaLawanTransaksi = "Nama Lawan Transaksi harus diisi";
+    // if (!formData.alamatLawanTransaksi)
+    //   newErrors.alamatLawanTransaksi = "Alamat Lawan Transaksi harus diisi";
     if (!formData.berkas) newErrors.berkas = "Berkas Faktur harus diunggah";
+    setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -566,50 +624,55 @@ const BASTForm = () => {
     return formDataToSend;
   };
 
-  // Save Draft (tidak diubah)
+  // Save Draft (diperbarui dengan validasi visual)
   const saveDraft = async () => {
-    if (!formData.idBast) {
-      alert("ID BAST tidak valid");
-      return;
-    }
-    const token = localStorage.getItem("token");
-    if (!token) return alert("Token tidak ditemukan");
-    setIsSavingDraft(true);
-    try {
-      const formDataToSend = prepareFormData();
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/bast/draft`,
-        {
-          method: "POST",
-          body: formDataToSend,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      const result = await res.json();
-      if (res.ok) {
-        setSuccessMessage(
-          `Draft BAST berhasil disimpan! ID: ${formData.idBast}`
-        );
-        setShowSuccessModal(true);
-        setTimeout(() => {
-          setRedirectToDashboard(true);
-        }, 3000);
-      } else {
-        alert("Gagal: " + (result.error || "Server error"));
-      }
-    } catch (err) {
-      console.error("Error save draft:", err);
-      alert("Kesalahan jaringan");
-    } finally {
-      setIsSavingDraft(false);
-    }
-  };
+  // 🔴 Tandai semua field sebagai touched agar border merah muncul
+  markAllFieldsAsTouched();
+  if (!validate()) return;
 
-  // Submit BAST (tidak diubah)
+  if (!formData.idBast) {
+    alert("ID BAST tidak valid");
+    return;
+  }
+  const token = localStorage.getItem("token");
+  if (!token) return alert("Token tidak ditemukan");
+  setIsSavingDraft(true);
+  try {
+    const formDataToSend = prepareFormData();
+    const res = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/api/bast/draft`,
+      {
+        method: "POST",
+        body: formDataToSend,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    const result = await res.json();
+    if (res.ok) {
+      setSuccessMessage(
+        `Draft BAST berhasil disimpan! ID: ${formData.idBast}`
+      );
+      setShowSuccessModal(true);
+      setTimeout(() => {
+        setRedirectToDashboard(true);
+      }, 3000);
+    } else {
+      alert("Gagal: " + (result.error || "Server error"));
+    }
+  } catch (err) {
+    console.error("Error save draft:", err);
+    alert("Kesalahan jaringan");
+  } finally {
+    setIsSavingDraft(false);
+  }
+};
+
+  // Submit BAST (diperbarui dengan validasi visual)
   const handleSubmit = async (e) => {
     e.preventDefault();
+    markAllFieldsAsTouched(); // 🔴 tandai semua field
     if (!validate()) return;
     const token = localStorage.getItem("token");
     if (!token) return alert("Token tidak ditemukan");
@@ -673,8 +736,8 @@ const BASTForm = () => {
         tanggalAkhirKontrak: "",
         tanggalPenyerahanBarangJasa: "",
         kesesuaianJumlahSpesifikasi: "Sesuai",
-        alasanKetidaksesuaian: "",
-        idrDendaKeterlambatan: 0,
+        alasanKeterlambatan: "",
+        idrDendaKeterlambatan: "",
         copyKontrak: null,
         items: [
           {
@@ -708,12 +771,14 @@ const BASTForm = () => {
           },
         ],
         creatorBastVendor: formData.creatorBastVendor,
+        totalInvoice:0,
       });
       setErrors({});
+      setTouchedFields(new Set()); // reset touched
     }
   };
 
-  const totalTagihan = formData.items.reduce((sum, item) => {
+  const totalInvoice = formData.items.reduce((sum, item) => {
     const num = parseInt(item.nilaiTagihan.replace(/\./g, ""), 10) || 0;
     return sum + num;
   }, 0);
@@ -722,6 +787,7 @@ const BASTForm = () => {
     fetchFakturList();
     setShowFakturModal(true);
   };
+
   const selectFaktur = (faktur) => {
     setFormData({
       ...formData,
@@ -735,11 +801,17 @@ const BASTForm = () => {
     });
     setShowFakturModal(false);
   };
+
   const filteredFaktur = fakturList.filter(
     (f) =>
       f.nomor.toLowerCase().includes(searchFaktur.toLowerCase()) ||
       f.namaPenjual.toLowerCase().includes(searchFaktur.toLowerCase())
   );
+
+  // 🔴 Helper untuk cek apakah field wajib dan error
+  const isFieldInvalid = (fieldName) => {
+    return touchedFields.has(fieldName) && errors[fieldName];
+  };
 
   return (
     <div className="bg-card border border-border rounded-lg p-6 space-y-6">
@@ -762,18 +834,18 @@ const BASTForm = () => {
             error={errors.invoiceTypeId}
             placeholder={loading ? "Memuat..." : "Pilih jenis..."}
             disabled={loading}
+            containerClassName={isFieldInvalid("invoiceTypeId") ? "border-red-500" : ""}
           />
           <div className="flex gap-2">
             <Input
               label="Nomor PO"
               type="text"
-              required
               value={formData.nomorPo}
               onChange={(e) =>
                 setFormData({ ...formData, nomorPo: e.target.value })
               }
               error={errors.nomorPo}
-              containerClassName="flex-1"
+              containerClassName={`flex-1 ${isFieldInvalid("nomorPo") ? "border-red-500" : ""}`}
             />
             <div className="flex items-end mb-1">
               <Button
@@ -792,19 +864,19 @@ const BASTForm = () => {
             <label className="block font-medium">Nomor Kontrak *</label>
             <div className="flex gap-2">
               <input
-                type="text" // ❗ Diperbaiki dari "textarea" ke "text"
+                type="text"
                 required
                 value={formData.nomorKontrak}
                 onChange={(e) =>
                   setFormData({ ...formData, nomorKontrak: e.target.value })
                 }
-                className="flex-1 border rounded px-3 py-2"
+                className={`flex-1 border rounded px-3 py-2 ${isFieldInvalid("nomorKontrak") ? "border-red-500" : ""}`}
               />
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={handleSearchKontrak} // ✅ Diubah dari handleCheckReviewer
+                onClick={handleSearchKontrak}
                 disabled={isSearchingKontrak}
                 className="h-10 whitespace-nowrap"
               >
@@ -824,6 +896,7 @@ const BASTForm = () => {
             error={errors.vendorId}
             placeholder={loading ? "Memuat..." : "Pilih vendor..."}
             disabled={loading || vendorOptions.length === 1}
+            containerClassName={isFieldInvalid("vendorId") ? "border-red-500" : ""}
           />
           <Input
             label="Perihal"
@@ -834,6 +907,7 @@ const BASTForm = () => {
               setFormData({ ...formData, perihal: e.target.value })
             }
             error={errors.perihal}
+            containerClassName={isFieldInvalid("perihal") ? "border-red-500" : ""}
           />
           {/* Reviewer BAST (tidak diubah) */}
           <div className="flex flex-col gap-1">
@@ -845,7 +919,7 @@ const BASTForm = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, reviewerBast: e.target.value })
                 }
-                className="flex-1 border rounded px-3 py-2"
+                className={`flex-1 border rounded px-3 py-2 ${isFieldInvalid("reviewerBast") ? "border-red-500" : ""}`}
                 placeholder="masukan@email.com"
               />
               <Button
@@ -875,6 +949,7 @@ const BASTForm = () => {
                 })
               }
               error={errors.tanggalMulaiKontrak}
+              containerClassName={isFieldInvalid("tanggalMulaiKontrak") ? "border-red-500" : ""}
             />
             <Input
               label="Tanggal Akhir Kontrak"
@@ -888,10 +963,11 @@ const BASTForm = () => {
                 })
               }
               error={errors.tanggalAkhirKontrak}
+              containerClassName={isFieldInvalid("tanggalAkhirKontrak") ? "border-red-500" : ""}
             />
           </div>
           <Input
-            label="Tanggal Penyerahan Barang/Jasa"
+            label="Tanggal BA"
             type="date"
             value={formData.tanggalPenyerahanBarangJasa}
             onChange={(e) =>
@@ -901,7 +977,9 @@ const BASTForm = () => {
               })
             }
             error={errors.tanggalPenyerahanBarangJasa}
+            containerClassName={isFieldInvalid("tanggalPenyerahanBarangJasa") ? "border-red-500" : ""}
           />
+          {/* Kesesuaian Spesifikasi */}
           <div>
             <label className="block mb-2 font-medium">
               Kesesuaian Spesifikasi
@@ -917,7 +995,7 @@ const BASTForm = () => {
                     setFormData({
                       ...formData,
                       kesesuaianJumlahSpesifikasi: "Sesuai",
-                      alasanKetidaksesuaian: "",
+                      alasanKeterlambatan: "",
                       idrDendaKeterlambatan: "",
                     })
                   }
@@ -954,14 +1032,15 @@ const BASTForm = () => {
                 label="Alasan Ketidaksesuaian"
                 type="textarea"
                 required
-                value={formData.alasanKetidaksesuaian}
+                value={formData.alasanKeterlambatan}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    alasanKetidaksesuaian: e.target.value,
+                    alasanKeterlambatan: e.target.value,
                   })
                 }
-                error={errors.alasanKetidaksesuaian}
+                error={errors.alasanKeterlambatan}
+                containerClassName={isFieldInvalid("alasanKeterlambatan") ? "border-red-500" : ""}
               />
               <Input
                 label="Denda Keterlambatan (IDR)"
@@ -972,12 +1051,12 @@ const BASTForm = () => {
                   handleCurrencyChange(e, "idrDendaKeterlambatan")
                 }
                 error={errors.idrDendaKeterlambatan}
+                containerClassName={isFieldInvalid("idrDendaKeterlambatan") ? "border-red-500" : ""}
               />
             </div>
           )}
         </div>
-
-        {/* Item Pekerjaan (tidak diubah) */}
+        {/* Item Pekerjaan */}
         <div>
           <h4 className="font-medium mb-4">Item Pekerjaan:</h4>
           <table className="w-full table-auto border-collapse">
@@ -1002,7 +1081,7 @@ const BASTForm = () => {
                       onChange={(e) =>
                         handleItemChange(index, "pekerjaan", e.target.value)
                       }
-                      className="w-full border rounded px-2 py-1"
+                      className={`w-full border rounded px-2 py-1 ${isFieldInvalid(`pekerjaan_${index}`) ? "border-red-500" : ""}`}
                     />
                   </td>
                   <td>
@@ -1026,7 +1105,7 @@ const BASTForm = () => {
                         const f = formatCurrency(e.target.value);
                         handleItemChange(index, "nilaiTagihan", f);
                       }}
-                      className="w-full border rounded px-2 py-1"
+                      className={`w-full border rounded px-2 py-1 text-right ${isFieldInvalid(`nilaiTagihan_${index}`) ? "border-red-500" : ""}`}
                     />
                   </td>
                   <td>
@@ -1061,15 +1140,45 @@ const BASTForm = () => {
               <PlusIcon size={16} /> Tambah Item
             </button>
           </div>
-          <div className="mt-2 text-right font-medium">
-            Total:{" "}
-            <span className="text-blue-600">
-              {formatCurrency(totalTagihan.toString())}
-            </span>
+          {/* 🧮 Total Awal, Denda, Total Akhir */}
+          <div className="mt-4 text-right font-medium bg-gray-50 p-3 rounded-lg">
+            <div>
+              Total Awal:{" "}
+              <span className="text-blue-600">
+                {formatCurrency(totalInvoice.toString())}
+              </span>
+            </div>
+            {formData.kesesuaianJumlahSpesifikasi === "Tidak Sesuai" &&
+              parseInt(
+                formData.idrDendaKeterlambatan.replace(/[^\d]/g, ""),
+                10
+              ) > 0 && (
+                <div className="text-red-600 mt-1">
+                  (-) Denda: {formatCurrency(formData.idrDendaKeterlambatan)}
+                </div>
+              )}
+            <div className="mt-1">
+              Total Akhir:{" "}
+              <span className="text-green-600 font-semibold">
+                {formatCurrency(
+                  (
+                    parseInt(
+                      totalInvoice.toString().replace(/[^\d]/g, ""),
+                      10
+                    ) -
+                    (formData.kesesuaianJumlahSpesifikasi === "Tidak Sesuai"
+                      ? parseInt(
+                          formData.idrDendaKeterlambatan.replace(/[^\d]/g, ""),
+                          10
+                        ) || 0
+                      : 0)
+                  ).toString()
+                )}
+              </span>
+            </div>
           </div>
         </div>
-
-        {/* Copy Kontrak (tidak diubah) */}
+        {/* Copy Kontrak (diperbarui visual error) */}
         <div>
           <h4 className="font-medium mb-4">Copy Kontrak *:</h4>
           {errors.copyKontrak && (
@@ -1083,7 +1192,7 @@ const BASTForm = () => {
                   type="file"
                   accept=".pdf,.doc,.docx"
                   onChange={(e) => handleFileChange(e, "copyKontrak")}
-                  className="w-full border rounded px-3 py-2"
+                  className={`w-full border rounded px-3 py-2 ${isFieldInvalid("copyKontrak") ? "border-red-500" : ""}`}
                 />
                 {errors.copyKontrak && (
                   <p className="text-sm text-red-500 mt-1">
@@ -1126,8 +1235,7 @@ const BASTForm = () => {
             </ul>
           </div>
         </div>
-
-        {/* Dokumen Pendukung (tidak diubah) */}
+        {/* Dokumen Pendukung (diperbarui visual error) */}
         <div>
           <h4 className="font-medium mb-4">Dokumen Pendukung (1-3 dokumen):</h4>
           {errors.dokumenPendukung && (
@@ -1147,6 +1255,7 @@ const BASTForm = () => {
                       handleDokumenChange(doc.id, "nama", e.target.value)
                     }
                     error={errors[`nama_dokumen_${doc.id}`]}
+                    className={`text-gray-900 bg-white border ${isFieldInvalid(`nama_dokumen_${doc.id}`) ? "border-red-500" : "border-gray-300"} focus:border-blue-500 focus:ring focus:ring-blue-100`}
                   />
                 </div>
                 <div className="flex-1">
@@ -1155,7 +1264,7 @@ const BASTForm = () => {
                     type="file"
                     accept=".pdf,.doc,.zip"
                     onChange={(e) => handleDokumenFileChange(doc.id, e)}
-                    className="w-full"
+                    className={`w-full ${isFieldInvalid(`file_${doc.id}`) ? "border-red-500" : ""}`}
                   />
                   {errors[`file_${doc.id}`] && (
                     <p className="text-sm text-red-500 mt-1">
@@ -1186,12 +1295,11 @@ const BASTForm = () => {
             <PlusIcon size={16} /> Tambah Dokumen
           </button>
         </div>
-
-        {/* Faktur Pajak (tidak diubah) */}
+        {/* Faktur Pajak (tidak diubah, tapi diberi visual error) */}
         <div className="bg-white border rounded-lg p-4">
           <h4 className="font-medium mb-4">Faktur Pajak</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
+            {/* <Input
               label="Status Faktur"
               type="text"
               value={formData.statusFaktur}
@@ -1199,6 +1307,7 @@ const BASTForm = () => {
                 setFormData({ ...formData, statusFaktur: e.target.value })
               }
               error={errors.statusFaktur}
+              containerClassName={isFieldInvalid("statusFaktur") ? "border-red-500" : ""}
             />
             <div className="flex gap-2">
               <Input
@@ -1210,7 +1319,7 @@ const BASTForm = () => {
                   setFormData({ ...formData, nomorFaktur: e.target.value })
                 }
                 error={errors.nomorFaktur}
-                containerClassName="flex-1"
+                containerClassName={`flex-1 ${isFieldInvalid("nomorFaktur") ? "border-red-500" : ""}`}
               />
               <div className="flex items-end mb-1">
                 <Button
@@ -1232,6 +1341,7 @@ const BASTForm = () => {
                 setFormData({ ...formData, tanggalFaktur: e.target.value })
               }
               error={errors.tanggalFaktur}
+              containerClassName={isFieldInvalid("tanggalFaktur") ? "border-red-500" : ""}
             />
             <Input
               label="Jumlah OPP"
@@ -1241,6 +1351,7 @@ const BASTForm = () => {
                 setFormData({ ...formData, jumlahOpp: e.target.value })
               }
               error={errors.jumlahOpp}
+              containerClassName={isFieldInvalid("jumlahOpp") ? "border-red-500" : ""}
             />
             <Input
               label="Jumlah PPn"
@@ -1250,6 +1361,7 @@ const BASTForm = () => {
                 setFormData({ ...formData, jumlahPpn: e.target.value })
               }
               error={errors.jumlahPpn}
+              containerClassName={isFieldInvalid("jumlahPpn") ? "border-red-500" : ""}
             />
             <Input
               label="Jumlah PPnBm"
@@ -1259,6 +1371,7 @@ const BASTForm = () => {
                 setFormData({ ...formData, jumlahPpnBm: e.target.value })
               }
               error={errors.jumlahPpnBm}
+              containerClassName={isFieldInvalid("jumlahPpnBm") ? "border-red-500" : ""}
             />
             <Input
               label="NPWP Penjual"
@@ -1268,6 +1381,7 @@ const BASTForm = () => {
                 setFormData({ ...formData, npwpPenjual: e.target.value })
               }
               error={errors.npwpPenjual}
+              containerClassName={isFieldInvalid("npwpPenjual") ? "border-red-500" : ""}
             />
             <Input
               label="Nama Penjual"
@@ -1277,6 +1391,7 @@ const BASTForm = () => {
                 setFormData({ ...formData, namaPenjual: e.target.value })
               }
               error={errors.namaPenjual}
+              containerClassName={isFieldInvalid("namaPenjual") ? "border-red-500" : ""}
             />
             <Input
               label="Alamat Penjual"
@@ -1286,6 +1401,7 @@ const BASTForm = () => {
                 setFormData({ ...formData, alamatPenjual: e.target.value })
               }
               error={errors.alamatPenjual}
+              containerClassName={isFieldInvalid("alamatPenjual") ? "border-red-500" : ""}
             />
             <Input
               label="NPWP Lawan Transaksi"
@@ -1295,6 +1411,7 @@ const BASTForm = () => {
                 setFormData({ ...formData, npwpLawanTransaksi: e.target.value })
               }
               error={errors.npwpLawanTransaksi}
+              containerClassName={isFieldInvalid("npwpLawanTransaksi") ? "border-red-500" : ""}
             />
             <Input
               label="Nama Lawan Transaksi"
@@ -1304,6 +1421,7 @@ const BASTForm = () => {
                 setFormData({ ...formData, namaLawanTransaksi: e.target.value })
               }
               error={errors.namaLawanTransaksi}
+              containerClassName={isFieldInvalid("namaLawanTransaksi") ? "border-red-500" : ""}
             />
             <Input
               label="Alamat Lawan Transaksi"
@@ -1316,14 +1434,15 @@ const BASTForm = () => {
                 })
               }
               error={errors.alamatLawanTransaksi}
-            />
+              containerClassName={isFieldInvalid("alamatLawanTransaksi") ? "border-red-500" : ""}
+            /> */}
             <div>
               <label className="block mb-1">Berkas Faktur *</label>
               <input
                 type="file"
                 accept=".pdf,.jpg,.png"
                 onChange={(e) => handleFileChange(e, "berkas")}
-                className="w-full"
+                className={`w-full ${isFieldInvalid("berkas") ? "border-red-500" : ""}`}
               />
               {errors.berkas && (
                 <p className="text-sm text-red-500 mt-1">{errors.berkas}</p>
@@ -1331,7 +1450,6 @@ const BASTForm = () => {
             </div>
           </div>
         </div>
-
         {/* Tombol Aksi (tidak diubah) */}
         <div className="pt-4 border-t">
           <div className="flex flex-col sm:flex-row gap-3">
@@ -1358,7 +1476,6 @@ const BASTForm = () => {
           </div>
         </div>
       </form>
-
       {/* Modal: Hasil Cek Reviewer (tidak diubah) */}
       {showReviewerPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -1392,10 +1509,9 @@ const BASTForm = () => {
           </div>
         </div>
       )}
-
       {/* ✅ Modal Pencarian Kontrak */}
       {showKontrakModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-80">
           <div className="bg-white rounded-lg p-6 w-4/5 max-w-3xl max-h-96 overflow-auto">
             <h5 className="text-lg font-semibold mb-4">Pilih Kontrak</h5>
             <table className="w-full table-auto">
@@ -1403,6 +1519,7 @@ const BASTForm = () => {
                 <tr className="bg-gray-100">
                   <th className="px-3 py-2 text-left">Nomor Kontrak</th>
                   <th className="px-3 py-2 text-left">Partner Name</th>
+                  <th className="px-3 py-2 text-left">Perihal</th>
                   <th className="px-3 py-2 text-left">Tanggal Mulai</th>
                   <th className="px-3 py-2 text-left">Tanggal Akhir</th>
                   <th className="px-3 py-2 text-center">Aksi</th>
@@ -1418,6 +1535,9 @@ const BASTForm = () => {
                       {kontrak.partnerName || "N/A"}
                     </td>
                     <td className="px-3 py-2 text-sm">
+                      {kontrak.subject || "N/A"}
+                    </td>
+                    <td className="px-3 py-2 text-sm">
                       {formatDateForDisplay(kontrak.date)}
                     </td>
                     <td className="px-3 py-2 text-sm">
@@ -1430,9 +1550,13 @@ const BASTForm = () => {
                           setFormData((prev) => ({
                             ...prev,
                             nomorKontrak: kontrak.number,
-                            perihal: kontrak.partnerName ,
-                              tanggalMulaiKontrak: kontrak.date ? formatDateForInput(kontrak.date) : prev.tanggalMulaiKontrak, // ✅ BENAR
-                              tanggalAkhirKontrak: kontrak.expireDate ? formatDateForInput(kontrak.expireDate) : prev.tanggalAkhirKontrak, // ✅ BENAR
+                            perihal: kontrak.subject,
+                            tanggalMulaiKontrak: kontrak.date
+                              ? formatDateForInput(kontrak.date)
+                              : prev.tanggalMulaiKontrak,
+                            tanggalAkhirKontrak: kontrak.expireDate
+                              ? formatDateForInput(kontrak.expireDate)
+                              : prev.tanggalAkhirKontrak,
                           }));
                           setErrors((prev) => ({
                             ...prev,
@@ -1459,7 +1583,6 @@ const BASTForm = () => {
           </div>
         </div>
       )}
-
       {/* Modal Pencarian Faktur (tidak diubah) */}
       {showFakturModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -1518,7 +1641,6 @@ const BASTForm = () => {
           </div>
         </div>
       )}
-
       {/* Modal Success (tidak diubah) */}
       {showSuccessModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

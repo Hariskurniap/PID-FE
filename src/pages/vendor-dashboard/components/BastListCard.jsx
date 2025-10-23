@@ -106,7 +106,7 @@ const BastListCard = ({ basts = [], loading = false, onViewDetails, onRefresh, o
                                         Detail
                                     </Button>
                                     {/* Tombol EDIT untuk DRAFT */}
-                                    {(bast.status === 'DRAFT') && (
+                                    {(bast.status === 'DRAFT' || bast.status === 'REJECT_FROM_REVIEW') && (
                                         <Button
                                             variant="outline"
                                             size="sm"

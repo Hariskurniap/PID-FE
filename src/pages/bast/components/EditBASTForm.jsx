@@ -18,7 +18,7 @@ const EditBastForm = () => {
         tanggalAkhirKontrak: '',
         tanggalPenyerahanBarangJasa: '',
         kesesuaianJumlahSpesifikasi: 'Sesuai',
-        alasanKetidaksesuaian: '',
+        alasanKeterlambatan: '',
         idrDendaKeterlambatan: '',
         copyKontrak: null,
         items: [{ no: 1, pekerjaan: '', progress: '0', nilaiTagihan: '', keterangan: '' }],
@@ -38,7 +38,13 @@ const EditBastForm = () => {
         berkas: null,
         detailTransaksi: [{ id: 1, no: 1, namaBarang: 'Nama Barang Kena Pajak/Jasa Kena Pajak', hargaJual: '0' }],
         creatorBastVendor: '',
+        totalInvoice:0,
     });
+
+    const totalInvoice = formData.items.reduce((sum, item) => {
+    const num = parseInt(item.nilaiTagihan.replace(/\./g, ""), 10) || 0;
+    return sum + num;
+  }, 0);
 
     const [vendorOptions, setVendorOptions] = useState([]);
     const [pengadaanOptions, setPengadaanOptions] = useState([]);
@@ -101,7 +107,7 @@ const EditBastForm = () => {
                     tanggalAkhirKontrak: bast.tanggalAkhirKontrak?.split('T')[0] || '',
                     tanggalPenyerahanBarangJasa: bast.tanggalPenyerahanBarangJasa?.split('T')[0] || '',
                     kesesuaianJumlahSpesifikasi: bast.kesesuaianJumlahSpesifikasi || 'Sesuai',
-                    alasanKetidaksesuaian: bast.alasanKetidaksesuaian || '',
+                    alasanKeterlambatan: bast.alasanKeterlambatan || '',
                     idrDendaKeterlambatan: bast.idrDendaKeterlambatan != null ? bast.idrDendaKeterlambatan.toString() : '',
                     copyKontrak: null,
                     items: bast.detailTransaksi?.map(dt => ({
@@ -378,7 +384,7 @@ const EditBastForm = () => {
     const validate = () => {
         const newErrors = {};
         if (!formData.invoiceTypeId) newErrors.invoiceTypeId = 'Jenis Pengadaan harus dipilih';
-        if (!formData.nomorPo) newErrors.nomorPo = 'Nomor PO harus diisi';
+        // if (!formData.nomorPo) newErrors.nomorPo = 'Nomor PO harus diisi';
         if (!formData.vendorId) newErrors.vendorId = 'Nama Vendor harus dipilih';
         if (!formData.perihal) newErrors.perihal = 'Perihal harus diisi';
         if (!formData.nomorKontrak) newErrors.nomorKontrak = 'Nomor Kontrak harus diisi';
@@ -389,7 +395,7 @@ const EditBastForm = () => {
         // if (!formData.copyKontrak && !formData.copyKontrakPath) newErrors.copyKontrak = 'Copy Kontrak harus diunggah';
 
         if (formData.kesesuaianJumlahSpesifikasi === 'Tidak Sesuai') {
-            if (!formData.alasanKetidaksesuaian) newErrors.alasanKetidaksesuaian = 'Alasan ketidaksesuaian harus diisi';
+            if (!formData.alasanKeterlambatan) newErrors.alasanKeterlambatan = 'Alasan ketidaksesuaian harus diisi';
             if (!formData.idrDendaKeterlambatan) newErrors.idrDendaKeterlambatan = 'Denda keterlambatan harus diisi';
         }
 
@@ -402,17 +408,17 @@ const EditBastForm = () => {
             newErrors.dokumenPendukung = 'Minimal 1 dokumen pendukung harus diunggah';
         }
 
-        if (!formData.statusFaktur) newErrors.statusFaktur = 'Status Faktur harus diisi';
-        // if (!formData.nomorFaktur) newErrors.nomorFaktur = 'Nomor Faktur harus diisi';
-        if (!formData.tanggalFaktur) newErrors.tanggalFaktur = 'Tanggal Faktur harus diisi';
-        if (!formData.jumlahOpp) newErrors.jumlahOpp = 'Jumlah OPP harus diisi';
-        if (!formData.jumlahPpn) newErrors.jumlahPpn = 'Jumlah PPn harus diisi';
-        if (!formData.npwpPenjual) newErrors.npwpPenjual = 'NPWP Penjual harus diisi';
-        if (!formData.namaPenjual) newErrors.namaPenjual = 'Nama Penjual harus diisi';
-        if (!formData.alamatPenjual) newErrors.alamatPenjual = 'Alamat Penjual harus diisi';
-        if (!formData.npwpLawanTransaksi) newErrors.npwpLawanTransaksi = 'NPWP Lawan Transaksi harus diisi';
-        if (!formData.namaLawanTransaksi) newErrors.namaLawanTransaksi = 'Nama Lawan Transaksi harus diisi';
-        if (!formData.alamatLawanTransaksi) newErrors.alamatLawanTransaksi = 'Alamat Lawan Transaksi harus diisi';
+        // if (!formData.statusFaktur) newErrors.statusFaktur = 'Status Faktur harus diisi';
+        // // if (!formData.nomorFaktur) newErrors.nomorFaktur = 'Nomor Faktur harus diisi';
+        // if (!formData.tanggalFaktur) newErrors.tanggalFaktur = 'Tanggal Faktur harus diisi';
+        // if (!formData.jumlahOpp) newErrors.jumlahOpp = 'Jumlah OPP harus diisi';
+        // if (!formData.jumlahPpn) newErrors.jumlahPpn = 'Jumlah PPn harus diisi';
+        // if (!formData.npwpPenjual) newErrors.npwpPenjual = 'NPWP Penjual harus diisi';
+        // if (!formData.namaPenjual) newErrors.namaPenjual = 'Nama Penjual harus diisi';
+        // if (!formData.alamatPenjual) newErrors.alamatPenjual = 'Alamat Penjual harus diisi';
+        // if (!formData.npwpLawanTransaksi) newErrors.npwpLawanTransaksi = 'NPWP Lawan Transaksi harus diisi';
+        // if (!formData.namaLawanTransaksi) newErrors.namaLawanTransaksi = 'Nama Lawan Transaksi harus diisi';
+        // if (!formData.alamatLawanTransaksi) newErrors.alamatLawanTransaksi = 'Alamat Lawan Transaksi harus diisi';
         // if (!formData.berkas && !formData.fakturPajak?.berkasPath) newErrors.berkas = 'Berkas Faktur harus diunggah';
 
         setErrors(newErrors);
@@ -497,7 +503,6 @@ const EditBastForm = () => {
     };
 
     // Submit BAST
-    // Submit BAST
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
@@ -521,11 +526,14 @@ const EditBastForm = () => {
             }
 
             // 2. Submit ke WAITING_REVIEW
-            const submitRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/bast/submit`, {
-                method: 'POST',
+            const submitRes = await fetch(
+                `${import.meta.env.VITE_API_BASE_URL}/api/bast/submit`,
+                {
+                method: "POST",
                 body: formDataToSend,
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+                headers: { Authorization: `Bearer ${token}` },
+                }
+            );
 
             const result = await submitRes.json();
             // if (submitRes.ok) {
@@ -595,6 +603,11 @@ const EditBastForm = () => {
         return <div className="p-6">Memuat data BAST...</div>;
     }
 
+    // 🔴 Helper untuk cek apakah field wajib dan error
+//   const isFieldInvalid = (fieldName) => {
+//     return touchedFields.has(fieldName) && errors[fieldName];
+//   };
+
     return (
         <div className="bg-card border border-border rounded-lg p-6 space-y-6">
             <div className="mb-6">
@@ -619,7 +632,6 @@ const EditBastForm = () => {
                         <Input
                             label="Nomor PO"
                             type="text"
-                            required
                             value={formData.nomorPo}
                             onChange={(e) => setFormData({ ...formData, nomorPo: e.target.value })}
                             error={errors.nomorPo}
@@ -731,7 +743,7 @@ const EditBastForm = () => {
                                     onChange={() => setFormData({
                                         ...formData,
                                         kesesuaianJumlahSpesifikasi: 'Sesuai',
-                                        alasanKetidaksesuaian: '',
+                                        alasanKeterlambatan: '',
                                         idrDendaKeterlambatan: ''
                                     })}
                                 />
@@ -762,9 +774,9 @@ const EditBastForm = () => {
                                 label="Alasan Ketidaksesuaian"
                                 type="textarea"
                                 required
-                                value={formData.alasanKetidaksesuaian}
-                                onChange={(e) => setFormData({ ...formData, alasanKetidaksesuaian: e.target.value })}
-                                error={errors.alasanKetidaksesuaian}
+                                value={formData.alasanKeterlambatan}
+                                onChange={(e) => setFormData({ ...formData, alasanKeterlambatan: e.target.value })}
+                                error={errors.alasanKeterlambatan}
                             />
                             <Input
                                 label="Denda Keterlambatan (IDR)"
@@ -779,39 +791,128 @@ const EditBastForm = () => {
                 </div>
 
                 {/* Item Pekerjaan */}
-                <div>
-                    <h4 className="font-medium mb-4">Item Pekerjaan:</h4>
-                    <table className="w-full table-auto border-collapse">
-                        <thead>
-                            <tr className="bg-blue-50">
-                                <th className="px-4 py-2 text-left">No.</th>
-                                <th className="px-4 py-2 text-left">Pekerjaan</th>
-                                <th className="px-4 py-2 text-left">Progress</th>
-                                <th className="px-4 py-2 text-left">Nilai Tagihan</th>
-                                <th className="px-4 py-2 text-left">Keterangan</th>
-                                <th className="px-4 py-2 text-right">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {formData.items.map((item, index) => (
-                                <tr key={index} className="border-b">
-                                    <td className="px-4 py-2">{item.no}</td>
-                                    <td><input type="text" value={item.pekerjaan} onChange={(e) => handleItemChange(index, 'pekerjaan', e.target.value)} className="w-full border rounded px-2 py-1" /></td>
-                                    <td><input type="number" min="0" max="100" value={item.progress} onChange={(e) => handleItemChange(index, 'progress', e.target.value)} className="w-20 border rounded px-2 py-1" />%</td>
-                                    <td><input type="text" value={item.nilaiTagihan} onChange={(e) => { const f = formatCurrency(e.target.value); handleItemChange(index, 'nilaiTagihan', f); }} className="w-full border rounded px-2 py-1" /></td>
-                                    <td><input type="text" value={item.keterangan} onChange={(e) => handleItemChange(index, 'keterangan', e.target.value)} className="w-full border rounded px-2 py-1" /></td>
-                                    <td className="text-right"><button type="button" onClick={() => removeItem(index)} className="text-red-500"><Trash2Icon size={16} /></button></td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    <div className="mt-2 flex justify-end">
-                        <button type="button" onClick={addItem} className="flex items-center gap-1 text-blue-600 text-sm">
-                            <PlusIcon size={16} /> Tambah Item
-                        </button>
-                    </div>
-                    <div className="mt-2 text-right font-medium">Total: <span className="text-blue-600">{formatCurrency(totalTagihan.toString())}</span></div>
-                </div>
+<div>
+  <h4 className="font-medium mb-4">Item Pekerjaan:</h4>
+  <table className="w-full table-auto border-collapse">
+    <thead>
+      <tr className="bg-blue-50">
+        <th className="px-4 py-2 text-left">No.</th>
+        <th className="px-4 py-2 text-left">Pekerjaan</th>
+        <th className="px-4 py-2 text-left">Progress</th>
+        <th className="px-4 py-2 text-left">Nilai Tagihan</th>
+        <th className="px-4 py-2 text-left">Keterangan</th>
+        <th className="px-4 py-2 text-right">Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      {formData.items.map((item, index) => (
+        <tr key={index} className="border-b">
+          <td className="px-4 py-2">{item.no}</td>
+          <td>
+            <input
+              type="text"
+              value={item.pekerjaan}
+              onChange={(e) =>
+                handleItemChange(index, "pekerjaan", e.target.value)
+              }
+              className="w-full border rounded px-2 py-1"
+            />
+          </td>
+          <td>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              value={item.progress}
+              onChange={(e) =>
+                handleItemChange(index, "progress", e.target.value)
+              }
+              className="w-20 border rounded px-2 py-1"
+            />
+            %
+          </td>
+          <td>
+            <input
+              type="text"
+              value={item.nilaiTagihan}
+              onChange={(e) => {
+                const f = formatCurrency(e.target.value);
+                handleItemChange(index, "nilaiTagihan", f);
+              }}
+              className="w-full border rounded px-2 py-1 text-right"
+            />
+          </td>
+          <td>
+            <input
+              type="text"
+              value={item.keterangan}
+              onChange={(e) =>
+                handleItemChange(index, "keterangan", e.target.value)
+              }
+              className="w-full border rounded px-2 py-1"
+            />
+          </td>
+          <td className="text-right">
+            <button
+              type="button"
+              onClick={() => removeItem(index)}
+              className="text-red-500"
+            >
+              <Trash2Icon size={16} />
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  {/* Tombol tambah item */}
+  <div className="mt-2 flex justify-end">
+    <button
+      type="button"
+      onClick={addItem}
+      className="flex items-center gap-1 text-blue-600 text-sm"
+    >
+      <PlusIcon size={16} /> Tambah Item
+    </button>
+  </div>
+
+  {/* 🧮 Total Awal, Denda, dan Total Akhir */}
+  <div className="mt-4 text-right font-medium bg-gray-50 p-3 rounded-lg">
+    <div>
+      Total Awal:{" "}
+      <span className="text-blue-600">
+        {formatCurrency(totalInvoice.toString())}
+      </span>
+    </div>
+
+    {formData.kesesuaianJumlahSpesifikasi === "Tidak Sesuai" &&
+      parseInt(formData.idrDendaKeterlambatan.replace(/[^\d]/g, ""), 10) > 0 && (
+        <div className="text-red-600 mt-1">
+          (-) Denda: {formatCurrency(formData.idrDendaKeterlambatan)}
+        </div>
+      )}
+
+    <div className="mt-1">
+      Total Akhir:{" "}
+      <span className="text-green-600 font-semibold">
+        {formatCurrency(
+          (
+            parseInt(totalInvoice.toString().replace(/[^\d]/g, ""), 10) -
+            (formData.kesesuaianJumlahSpesifikasi === "Tidak Sesuai"
+              ? parseInt(
+                  formData.idrDendaKeterlambatan.replace(/[^\d]/g, ""),
+                  10
+                ) || 0
+              : 0)
+          ).toString()
+        )}
+      </span>
+    </div>
+  </div>
+</div>
+
+
 
                 {/* Copy Kontrak (tampilan seperti Dokumen Pendukung) */}
                 <div>
@@ -896,7 +997,7 @@ const EditBastForm = () => {
                 <div className="bg-white border rounded-lg p-4">
                     <h4 className="font-medium mb-4">Faktur Pajak</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input label="Status Faktur" type="text" value={formData.statusFaktur} onChange={(e) => setFormData({ ...formData, statusFaktur: e.target.value })} error={errors.statusFaktur} />
+                        {/* <Input label="Status Faktur" type="text" value={formData.statusFaktur} onChange={(e) => setFormData({ ...formData, statusFaktur: e.target.value })} error={errors.statusFaktur} />
 
                         <div className="flex gap-2">
                             <Input
@@ -930,7 +1031,7 @@ const EditBastForm = () => {
                         <Input label="Alamat Penjual" type="text" value={formData.alamatPenjual} onChange={(e) => setFormData({ ...formData, alamatPenjual: e.target.value })} error={errors.alamatPenjual} />
                         <Input label="NPWP Lawan Transaksi" type="text" value={formData.npwpLawanTransaksi} onChange={(e) => setFormData({ ...formData, npwpLawanTransaksi: e.target.value })} error={errors.npwpLawanTransaksi} />
                         <Input label="Nama Lawan Transaksi" type="text" value={formData.namaLawanTransaksi} onChange={(e) => setFormData({ ...formData, namaLawanTransaksi: e.target.value })} error={errors.namaLawanTransaksi} />
-                        <Input label="Alamat Lawan Transaksi" type="text" value={formData.alamatLawanTransaksi} onChange={(e) => setFormData({ ...formData, alamatLawanTransaksi: e.target.value })} error={errors.alamatLawanTransaksi} />
+                        <Input label="Alamat Lawan Transaksi" type="text" value={formData.alamatLawanTransaksi} onChange={(e) => setFormData({ ...formData, alamatLawanTransaksi: e.target.value })} error={errors.alamatLawanTransaksi} /> */}
                         <div>
                             <label className="block mb-1">Berkas Faktur *</label>
                             <input type="file" accept=".pdf,.jpg,.png" onChange={(e) => handleFileChange(e, 'berkas')} className="w-full" />

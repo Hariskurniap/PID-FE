@@ -39,10 +39,10 @@ const BastListCard = ({ basts = [], loading = false, onViewDetails, onRefresh, o
       <div className="p-6 border-b border-border flex justify-between items-center">
         <div>
           <h3 className="text-lg font-heading font-semibold text-foreground">
-            Daftar BAST untuk Review
+            Daftar BAST
           </h3>
           <p className="text-sm font-caption text-muted-foreground">
-            Daftar BAST yang membutuhkan review Anda
+            Daftar BAST yang membutuhkan input SA/GR dan list BAST
           </p>
         </div>
         <Button
@@ -62,10 +62,10 @@ const BastListCard = ({ basts = [], loading = false, onViewDetails, onRefresh, o
           <div className="p-8 text-center">
             <Icon name="FileText" size={48} className="text-muted-foreground mx-auto mb-4" />
             <h4 className="text-sm font-body font-medium text-foreground mb-2">
-              Tidak ada BAST untuk direview
+              Tidak ada BAST 
             </h4>
             <p className="text-xs font-caption text-muted-foreground">
-              Saat ini tidak ada BAST yang membutuhkan review Anda.
+              Saat ini tidak ada BAST yang membutuhkan input SA/GR dan list BAST
             </p>
           </div>
         ) : (
@@ -123,7 +123,7 @@ const BastListCard = ({ basts = [], loading = false, onViewDetails, onRefresh, o
                     Detail
                   </Button>
                   
-                  {(bast.status === 'WAITING_APPROVER') && (
+                  {(bast.status === 'DISETUJUI_VENDOR') && (
                     <Button
                       variant="default"
                       size="sm"
@@ -131,7 +131,7 @@ const BastListCard = ({ basts = [], loading = false, onViewDetails, onRefresh, o
                       iconPosition="left"
                       onClick={() => onReview(bast.idBast)}
                     >
-                      Review
+                      Input SA/GR
                     </Button>
                   )}
                 </div>
