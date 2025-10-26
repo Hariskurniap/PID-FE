@@ -381,6 +381,24 @@ const BASTForm = () => {
     }
   };
 
+  // ✅ Fungsi upload faktur - versi tanpa auto tanggal
+  const handleFakturUpload = (e) => {
+    handleFileChange(e, "berkas");
+
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({
+        ...prev,
+        statusFaktur: "UPLOAD", // indikator bahwa ada faktur
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        statusFaktur: "",
+      }));
+    }
+  };
+
   // Dokumen Pendukung (tidak diubah)
   const addDokumenPendukung = () => {
     if (formData.dokumenPendukung.length >= 3) {
@@ -626,48 +644,48 @@ const BASTForm = () => {
 
   // Save Draft (diperbarui dengan validasi visual)
   const saveDraft = async () => {
-  // 🔴 Tandai semua field sebagai touched agar border merah muncul
-  markAllFieldsAsTouched();
-  if (!validate()) return;
+    // 🔴 Tandai semua field sebagai touched agar border merah muncul
+    markAllFieldsAsTouched();
+    if (!validate()) return;
 
-  if (!formData.idBast) {
-    alert("ID BAST tidak valid");
-    return;
-  }
-  const token = localStorage.getItem("token");
-  if (!token) return alert("Token tidak ditemukan");
-  setIsSavingDraft(true);
-  try {
-    const formDataToSend = prepareFormData();
-    const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/api/bast/draft`,
-      {
-        method: "POST",
-        body: formDataToSend,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    const result = await res.json();
-    if (res.ok) {
-      setSuccessMessage(
-        `Draft BAST berhasil disimpan! ID: ${formData.idBast}`
-      );
-      setShowSuccessModal(true);
-      setTimeout(() => {
-        setRedirectToDashboard(true);
-      }, 3000);
-    } else {
-      alert("Gagal: " + (result.error || "Server error"));
+    if (!formData.idBast) {
+      alert("ID BAST tidak valid");
+      return;
     }
-  } catch (err) {
-    console.error("Error save draft:", err);
-    alert("Kesalahan jaringan");
-  } finally {
-    setIsSavingDraft(false);
-  }
-};
+    const token = localStorage.getItem("token");
+    if (!token) return alert("Token tidak ditemukan");
+    setIsSavingDraft(true);
+    try {
+      const formDataToSend = prepareFormData();
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/bast/draft`,
+        {
+          method: "POST",
+          body: formDataToSend,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const result = await res.json();
+      if (res.ok) {
+        setSuccessMessage(
+          `Draft BAST berhasil disimpan! ID: ${formData.idBast}`
+        );
+        setShowSuccessModal(true);
+        setTimeout(() => {
+          setRedirectToDashboard(true);
+        }, 3000);
+      } else {
+        alert("Gagal: " + (result.error || "Server error"));
+      }
+    } catch (err) {
+      console.error("Error save draft:", err);
+      alert("Kesalahan jaringan");
+    } finally {
+      setIsSavingDraft(false);
+    }
+  };
 
   // Submit BAST (diperbarui dengan validasi visual)
   const handleSubmit = async (e) => {
@@ -771,7 +789,7 @@ const BASTForm = () => {
           },
         ],
         creatorBastVendor: formData.creatorBastVendor,
-        totalInvoice:0,
+        totalInvoice: 0,
       });
       setErrors({});
       setTouchedFields(new Set()); // reset touched
@@ -834,7 +852,9 @@ const BASTForm = () => {
             error={errors.invoiceTypeId}
             placeholder={loading ? "Memuat..." : "Pilih jenis..."}
             disabled={loading}
-            containerClassName={isFieldInvalid("invoiceTypeId") ? "border-red-500" : ""}
+            containerClassName={
+              isFieldInvalid("invoiceTypeId") ? "border-red-500" : ""
+            }
           />
           <div className="flex gap-2">
             <Input
@@ -845,7 +865,9 @@ const BASTForm = () => {
                 setFormData({ ...formData, nomorPo: e.target.value })
               }
               error={errors.nomorPo}
-              containerClassName={`flex-1 ${isFieldInvalid("nomorPo") ? "border-red-500" : ""}`}
+              containerClassName={`flex-1 ${
+                isFieldInvalid("nomorPo") ? "border-red-500" : ""
+              }`}
             />
             <div className="flex items-end mb-1">
               <Button
@@ -870,7 +892,9 @@ const BASTForm = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, nomorKontrak: e.target.value })
                 }
-                className={`flex-1 border rounded px-3 py-2 ${isFieldInvalid("nomorKontrak") ? "border-red-500" : ""}`}
+                className={`flex-1 border rounded px-3 py-2 ${
+                  isFieldInvalid("nomorKontrak") ? "border-red-500" : ""
+                }`}
               />
               <Button
                 type="button"
@@ -896,7 +920,9 @@ const BASTForm = () => {
             error={errors.vendorId}
             placeholder={loading ? "Memuat..." : "Pilih vendor..."}
             disabled={loading || vendorOptions.length === 1}
-            containerClassName={isFieldInvalid("vendorId") ? "border-red-500" : ""}
+            containerClassName={
+              isFieldInvalid("vendorId") ? "border-red-500" : ""
+            }
           />
           <Input
             label="Perihal"
@@ -907,7 +933,9 @@ const BASTForm = () => {
               setFormData({ ...formData, perihal: e.target.value })
             }
             error={errors.perihal}
-            containerClassName={isFieldInvalid("perihal") ? "border-red-500" : ""}
+            containerClassName={
+              isFieldInvalid("perihal") ? "border-red-500" : ""
+            }
           />
           {/* Reviewer BAST (tidak diubah) */}
           <div className="flex flex-col gap-1">
@@ -919,7 +947,9 @@ const BASTForm = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, reviewerBast: e.target.value })
                 }
-                className={`flex-1 border rounded px-3 py-2 ${isFieldInvalid("reviewerBast") ? "border-red-500" : ""}`}
+                className={`flex-1 border rounded px-3 py-2 ${
+                  isFieldInvalid("reviewerBast") ? "border-red-500" : ""
+                }`}
                 placeholder="masukan@email.com"
               />
               <Button
@@ -949,7 +979,9 @@ const BASTForm = () => {
                 })
               }
               error={errors.tanggalMulaiKontrak}
-              containerClassName={isFieldInvalid("tanggalMulaiKontrak") ? "border-red-500" : ""}
+              containerClassName={
+                isFieldInvalid("tanggalMulaiKontrak") ? "border-red-500" : ""
+              }
             />
             <Input
               label="Tanggal Akhir Kontrak"
@@ -963,7 +995,9 @@ const BASTForm = () => {
                 })
               }
               error={errors.tanggalAkhirKontrak}
-              containerClassName={isFieldInvalid("tanggalAkhirKontrak") ? "border-red-500" : ""}
+              containerClassName={
+                isFieldInvalid("tanggalAkhirKontrak") ? "border-red-500" : ""
+              }
             />
           </div>
           <Input
@@ -977,7 +1011,11 @@ const BASTForm = () => {
               })
             }
             error={errors.tanggalPenyerahanBarangJasa}
-            containerClassName={isFieldInvalid("tanggalPenyerahanBarangJasa") ? "border-red-500" : ""}
+            containerClassName={
+              isFieldInvalid("tanggalPenyerahanBarangJasa")
+                ? "border-red-500"
+                : ""
+            }
           />
           {/* Kesesuaian Spesifikasi */}
           <div>
@@ -1040,7 +1078,9 @@ const BASTForm = () => {
                   })
                 }
                 error={errors.alasanKeterlambatan}
-                containerClassName={isFieldInvalid("alasanKeterlambatan") ? "border-red-500" : ""}
+                containerClassName={
+                  isFieldInvalid("alasanKeterlambatan") ? "border-red-500" : ""
+                }
               />
               <Input
                 label="Denda Keterlambatan (IDR)"
@@ -1051,7 +1091,11 @@ const BASTForm = () => {
                   handleCurrencyChange(e, "idrDendaKeterlambatan")
                 }
                 error={errors.idrDendaKeterlambatan}
-                containerClassName={isFieldInvalid("idrDendaKeterlambatan") ? "border-red-500" : ""}
+                containerClassName={
+                  isFieldInvalid("idrDendaKeterlambatan")
+                    ? "border-red-500"
+                    : ""
+                }
               />
             </div>
           )}
@@ -1081,7 +1125,11 @@ const BASTForm = () => {
                       onChange={(e) =>
                         handleItemChange(index, "pekerjaan", e.target.value)
                       }
-                      className={`w-full border rounded px-2 py-1 ${isFieldInvalid(`pekerjaan_${index}`) ? "border-red-500" : ""}`}
+                      className={`w-full border rounded px-2 py-1 ${
+                        isFieldInvalid(`pekerjaan_${index}`)
+                          ? "border-red-500"
+                          : ""
+                      }`}
                     />
                   </td>
                   <td>
@@ -1105,7 +1153,11 @@ const BASTForm = () => {
                         const f = formatCurrency(e.target.value);
                         handleItemChange(index, "nilaiTagihan", f);
                       }}
-                      className={`w-full border rounded px-2 py-1 text-right ${isFieldInvalid(`nilaiTagihan_${index}`) ? "border-red-500" : ""}`}
+                      className={`w-full border rounded px-2 py-1 text-right ${
+                        isFieldInvalid(`nilaiTagihan_${index}`)
+                          ? "border-red-500"
+                          : ""
+                      }`}
                     />
                   </td>
                   <td>
@@ -1192,7 +1244,9 @@ const BASTForm = () => {
                   type="file"
                   accept=".pdf,.doc,.docx"
                   onChange={(e) => handleFileChange(e, "copyKontrak")}
-                  className={`w-full border rounded px-3 py-2 ${isFieldInvalid("copyKontrak") ? "border-red-500" : ""}`}
+                  className={`w-full border rounded px-3 py-2 ${
+                    isFieldInvalid("copyKontrak") ? "border-red-500" : ""
+                  }`}
                 />
                 {errors.copyKontrak && (
                   <p className="text-sm text-red-500 mt-1">
@@ -1255,7 +1309,11 @@ const BASTForm = () => {
                       handleDokumenChange(doc.id, "nama", e.target.value)
                     }
                     error={errors[`nama_dokumen_${doc.id}`]}
-                    className={`text-gray-900 bg-white border ${isFieldInvalid(`nama_dokumen_${doc.id}`) ? "border-red-500" : "border-gray-300"} focus:border-blue-500 focus:ring focus:ring-blue-100`}
+                    className={`text-gray-900 bg-white border ${
+                      isFieldInvalid(`nama_dokumen_${doc.id}`)
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    } focus:border-blue-500 focus:ring focus:ring-blue-100`}
                   />
                 </div>
                 <div className="flex-1">
@@ -1264,7 +1322,9 @@ const BASTForm = () => {
                     type="file"
                     accept=".pdf,.doc,.zip"
                     onChange={(e) => handleDokumenFileChange(doc.id, e)}
-                    className={`w-full ${isFieldInvalid(`file_${doc.id}`) ? "border-red-500" : ""}`}
+                    className={`w-full ${
+                      isFieldInvalid(`file_${doc.id}`) ? "border-red-500" : ""
+                    }`}
                   />
                   {errors[`file_${doc.id}`] && (
                     <p className="text-sm text-red-500 mt-1">
@@ -1438,12 +1498,23 @@ const BASTForm = () => {
             /> */}
             <div>
               <label className="block mb-1">Berkas Faktur *</label>
-              <input
+              {/*<input
                 type="file"
                 accept=".pdf,.jpg,.png"
                 onChange={(e) => handleFileChange(e, "berkas")}
-                className={`w-full ${isFieldInvalid("berkas") ? "border-red-500" : ""}`}
+                className={`w-full ${
+                  isFieldInvalid("berkas") ? "border-red-500" : ""
+                }`}
+              />*/}
+              <input
+                type="file"
+                accept=".pdf,.jpg,.png"
+                onChange={handleFakturUpload}
+                className={`w-full ${
+                  isFieldInvalid("berkas") ? "border-red-500" : ""
+                }`}
               />
+
               {errors.berkas && (
                 <p className="text-sm text-red-500 mt-1">{errors.berkas}</p>
               )}

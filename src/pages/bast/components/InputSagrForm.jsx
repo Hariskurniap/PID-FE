@@ -209,6 +209,8 @@ const InputSagrForm = () => {
                 ? "bg-blue-100 text-blue-800"
                 : bastData.status === "APPROVED"
                 ? "bg-green-100 text-green-800"
+                : bastData.status === "DISETUJUI_VENDOR"
+                ? "bg-green-100 text-green-800"
                 : "bg-red-100 text-red-800"
             }`}
           >
@@ -276,7 +278,7 @@ const InputSagrForm = () => {
               <input
                 type="radio"
                 checked={bastData.kesesuaianJumlahSpesifikasi === "Sesuai"}
-                className="mr-2"
+                className="mr-2 appearance-none h-4 w-4 rounded-full border border-gray-400 bg-gray-100 checked:bg-gray-400 checked:border-gray-400"
                 readOnly
                 disabled
               />
@@ -553,10 +555,25 @@ const InputSagrForm = () => {
           </label>
           <input
             type="file"
+            accept=".pdf, .jpg, .jpeg, .png" // ✅ Batasi tipe file di dialog
             className="block w-full border rounded px-3 py-2 text-sm"
-            onChange={(e) =>
-              setFormData({ ...formData, file: e.target.files[0] })
-            }
+            onChange={(e) => {
+              const file = e.target.files[0];
+              if (!file) return;
+
+              const allowedTypes = [
+                "application/pdf",
+                "image/jpeg",
+                "image/png",
+              ];
+              if (!allowedTypes.includes(file.type)) {
+                alert("❌ File harus dalam format .pdf, .jpg, atau .png");
+                e.target.value = ""; // reset input file
+                return;
+              }
+
+              setFormData({ ...formData, file });
+            }}
           />
           {formData.file && (
             <p className="text-sm text-muted-foreground mt-1">

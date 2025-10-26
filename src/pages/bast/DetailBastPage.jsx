@@ -1,12 +1,11 @@
 // pages/bast/DetailBastPage.jsx
-import React from 'react';
-import Header from '../../components/ui/Header';
-import SessionTimeoutHandler from '../../components/ui/SessionTimeoutHandler';
-import DetailBastForm from './components/DetailBastForm';
-import Icon from '../../components/AppIcon';
-import Button from '../../components/ui/Button';
-import { useNavigate } from 'react-router-dom';
-
+import React from "react";
+import Header from "../../components/ui/Header";
+import SessionTimeoutHandler from "../../components/ui/SessionTimeoutHandler";
+import DetailBastForm from "./components/DetailBastForm";
+import Icon from "../../components/AppIcon";
+import Button from "../../components/ui/Button";
+import { useNavigate } from "react-router-dom";
 
 const DetailBastPage = () => {
   const navigate = useNavigate();
@@ -19,7 +18,7 @@ const DetailBastPage = () => {
       {/* Session Timeout Handler */}
       <SessionTimeoutHandler
         isActive={true}
-        onTimeout={() => navigate('/vendor-login')}
+        onTimeout={() => navigate("/vendor-login")}
         onExtend={() => {}}
       />
 
@@ -53,7 +52,18 @@ const DetailBastPage = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button
                 variant="outline"
-                onClick={() => navigate('/vendor-dashboard')}
+                onClick={() => {
+                  const role = localStorage.getItem("userRole");
+
+                  let targetPath = "/";
+                  if (role === "vendor") targetPath = "/vendor-dashboard";
+                  else if (role === "reviewer")
+                    targetPath = "/reviewer-dashboard";
+                  else if (role === "approval")
+                    targetPath = "/approver-dashboard"; // jika ada role lain
+
+                  navigate(targetPath);
+                }}
                 iconName="ArrowLeft"
                 iconPosition="left"
                 className="flex-1 sm:flex-none"

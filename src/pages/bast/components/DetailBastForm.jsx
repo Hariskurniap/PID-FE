@@ -192,6 +192,8 @@ const DetailBastForm = () => {
                 ? "bg-green-100 text-green-800"
                 : bastData.status === "INPUT_SAGR"
                 ? "bg-green-100 text-green-800"
+                : bastData.status === "BAST_DONE"
+                ? "bg-green-100 text-green-800"
                 : "bg-red-100 text-red-800"
             }`}
           >
@@ -275,7 +277,7 @@ const DetailBastForm = () => {
               <input
                 type="radio"
                 checked={bastData.kesesuaianJumlahSpesifikasi === "Sesuai"}
-                className="mr-2"
+                className="mr-2 appearance-none h-4 w-4 rounded-full border border-gray-400 bg-gray-100 checked:bg-gray-400 checked:border-gray-400"
                 readOnly
                 disabled
               />
@@ -607,11 +609,11 @@ const DetailBastForm = () => {
         </div>
 
         {/* Aksi */}
-        <div className="pt-6 border-t">
+        {/* <div className="pt-6 border-t">
           <Button variant="outline" onClick={() => window.history.back()}>
             Kembali
           </Button>
-        </div>
+        </div> */}
       </form>
     </div>
   );

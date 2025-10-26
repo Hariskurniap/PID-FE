@@ -52,7 +52,7 @@ const InputSagrPage = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button
                 variant="outline"
-                onClick={() => navigate('/admin-dashboard')}
+                onClick={() => navigate('/internal-staff-dashboard')}
                 iconName="ArrowLeft"
                 iconPosition="left"
                 className="flex-1 sm:flex-none"
