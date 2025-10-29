@@ -442,7 +442,7 @@ const formatRupiah = (value) => {
                   <div>
                     Total Awal:{" "}
                     <span className="text-blue-600">
-                      {formatRupiah(totalAwal)}
+                      {formatRupiah(totalAwal)}-{totalAwal}
                     </span>
                   </div>
 
