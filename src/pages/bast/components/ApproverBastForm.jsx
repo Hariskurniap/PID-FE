@@ -344,6 +344,18 @@ const ApproverBastForm = () => {
     );
   };
 
+  // Fungsi helper untuk format Rupiah
+const formatRupiah = (value) => {
+  if (!value && value !== 0) return "Rp 0";
+  const number = parseInt(value.toString().replace(/[^\d]/g, ""), 10);
+  return number.toLocaleString("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  });
+};
+
+
   return (
     <div className="bg-card border border-border rounded-lg p-6 space-y-8">
       <div className="mb-6">
@@ -467,7 +479,7 @@ const ApproverBastForm = () => {
               <input
                 type="radio"
                 checked={bastData.kesesuaianJumlahSpesifikasi === "Sesuai"}
-                className="mr-2"
+                className="mr-2 appearance-none h-4 w-4 rounded-full border border-gray-400 bg-gray-100 checked:bg-gray-400 checked:border-gray-400"
                 readOnly
                 disabled
               />
@@ -534,7 +546,7 @@ const ApproverBastForm = () => {
                       <td className="border px-3 py-2">{item.pekerjaan}</td>
                       <td className="border px-3 py-2">{item.progress}%</td>
                       <td className="border px-3 py-2 text-right">
-                        {item.nilaiTagihan}
+                        {formatRupiah(item.nilaiTagihan)}
                       </td>
                       <td className="border px-3 py-2">{item.keterangan}</td>
                     </tr>

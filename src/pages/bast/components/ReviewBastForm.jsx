@@ -337,6 +337,18 @@ const ReviewBastForm = () => {
     );
   };
 
+  // Fungsi helper untuk format Rupiah
+const formatRupiah = (value) => {
+  if (!value && value !== 0) return "Rp 0";
+  const number = parseInt(value.toString().replace(/[^\d]/g, ""), 10);
+  return number.toLocaleString("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  });
+};
+
+
   return (
     <div className="bg-card border border-border rounded-lg p-6 space-y-8">
       <div className="mb-6">
@@ -489,7 +501,7 @@ const ReviewBastForm = () => {
                       <td className="border px-3 py-2">{item.pekerjaan}</td>
                       <td className="border px-3 py-2">{item.progress}%</td>
                       <td className="border px-3 py-2 text-right">
-                        {item.nilaiTagihan}
+                        {formatRupiah(item.nilaiTagihan)}
                       </td>
                       <td className="border px-3 py-2">{item.keterangan}</td>
                     </tr>
@@ -791,6 +803,7 @@ const ReviewBastForm = () => {
           </Button>*/}
           <div className="flex-1"></div>
           <Button
+          type="button"   // 🔥 tambahkan juga di tombol Tolak
             variant="destructive"
             onClick={handleReject}
             disabled={submitting}
@@ -800,6 +813,7 @@ const ReviewBastForm = () => {
             {submitting ? "Memproses..." : "Tolak"}
           </Button>
           <Button
+          type="button"   // 🔥 tambahkan juga di tombol Tolak
             onClick={handleApprove}
             disabled={submitting}
             className="flex items-center gap-2"

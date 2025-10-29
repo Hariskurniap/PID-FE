@@ -51,6 +51,8 @@ const DetailBastForm = () => {
       }
     };
 
+    
+
     const fetchTimeline = async () => {
       try {
         const res = await fetch(
@@ -136,6 +138,17 @@ const DetailBastForm = () => {
     );
   };
 
+  // Fungsi helper untuk format Rupiah
+const formatRupiah = (value) => {
+  if (!value && value !== 0) return "Rp 0";
+  const number = parseInt(value.toString().replace(/[^\d]/g, ""), 10);
+  return number.toLocaleString("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  });
+};
+
   return (
     <div className="bg-card border border-border rounded-lg p-6 space-y-8">
       <div className="mb-6">
@@ -193,6 +206,8 @@ const DetailBastForm = () => {
                 : bastData.status === "INPUT_SAGR"
                 ? "bg-green-100 text-green-800"
                 : bastData.status === "BAST_DONE"
+                ? "bg-green-100 text-green-800"
+                : bastData.status === "DISETUJUI_APPROVER"
                 ? "bg-green-100 text-green-800"
                 : "bg-red-100 text-red-800"
             }`}
@@ -370,7 +385,7 @@ const DetailBastForm = () => {
                       <td className="border px-3 py-2">{item.pekerjaan}</td>
                       <td className="border px-3 py-2">{item.progress}%</td>
                       <td className="border px-3 py-2 text-right">
-                        {item.nilaiTagihan}
+                        {formatRupiah(item.nilaiTagihan)}
                       </td>
                       <td className="border px-3 py-2">{item.keterangan}</td>
                     </tr>
