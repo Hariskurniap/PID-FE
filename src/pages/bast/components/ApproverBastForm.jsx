@@ -346,14 +346,18 @@ const ApproverBastForm = () => {
 
   // Fungsi helper untuk format Rupiah
 const formatRupiah = (value) => {
-  if (!value && value !== 0) return "Rp 0";
-  const number = parseInt(value.toString().replace(/[^\d]/g, ""), 10);
-  return number.toLocaleString("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  });
+  if (value === null || value === undefined || value === "") return "Rp 0";
+
+  // Pastikan value adalah number yang valid
+  const number = Number(value);
+
+  // Jika bukan angka, return default
+  if (isNaN(number)) return "Rp 0";
+
+  // Format ke Rupiah dengan titik ribuan, tanpa koma desimal
+  return `Rp ${number.toLocaleString("id-ID", { minimumFractionDigits: 0 })}`;
 };
+
 
 
   return (
@@ -595,12 +599,19 @@ const formatRupiah = (value) => {
               const totalAkhir = totalAwal - denda;
 
               // Fungsi format rupiah
-              const formatCurrency = (num) =>
-                new Intl.NumberFormat("id-ID", {
-                  style: "currency",
-                  currency: "IDR",
-                  minimumFractionDigits: 0,
-                }).format(num || 0);
+              const formatCurrency = (value) => {
+  if (value === null || value === undefined || value === "") return "Rp 0";
+
+  // Pastikan dikonversi ke angka float agar "180020.00" jadi 180020, bukan 18002000
+  const number = parseFloat(value);
+
+  if (isNaN(number)) return "Rp 0";
+
+  return `Rp ${number.toLocaleString("id-ID", {
+    minimumFractionDigits: 0,
+  })}`;
+};
+
 
               return (
                 <>
