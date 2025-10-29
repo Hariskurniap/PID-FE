@@ -529,15 +529,13 @@ const formatRupiah = (value) => {
             {(() => {
               // Hitung total nilai tagihan dari semua item
               const totalAwal = bastData.detailTransaksi?.reduce(
-                (sum, item) => {
-                  const clean = parseInt(
-                    (item.nilaiTagihan || "0").toString().replace(/[^\d]/g, ""),
-                    10
-                  );
-                  return sum + (isNaN(clean) ? 0 : clean);
-                },
-                0
-              );
+  (sum, item) => {
+    const rawValue = item.nilaiTagihan || "0";
+    const number = parseFloat(rawValue); // ✅ ubah ke float, bukan parseInt
+    return sum + (isNaN(number) ? 0 : number);
+  },
+  0
+);
 
               // Ambil denda (jika ada)
               const denda =
