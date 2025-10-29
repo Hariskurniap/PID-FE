@@ -553,41 +553,26 @@ const formatRupiah = (value) => {
               // Hitung total akhir
               const totalAkhir = totalAwal - denda;
 
-              // Fungsi format rupiah
-              const formatCurrency = (value) => {
-  if (value === null || value === undefined || value === "") return "Rp 0";
-
-  // Pastikan dikonversi ke angka float agar "180020.00" jadi 180020, bukan 18002000
-  const number = parseFloat(value);
-
-  if (isNaN(number)) return "Rp 0";
-
-  return `Rp ${number.toLocaleString("id-ID", {
-    minimumFractionDigits: 0,
-  })}`;
-};
-
-
               return (
                 <>
                   <div>
                     Total Awal:{" "}
                     <span className="text-blue-600">
-                      {formatCurrency(totalAwal)}
+                      {formatRupiah(totalAwal)}
                     </span>
                   </div>
 
                   {bastData.kesesuaianJumlahSpesifikasi === "Tidak Sesuai" &&
                     denda > 0 && (
                       <div className="text-red-600 mt-1">
-                        (-) Denda: {formatCurrency(denda)}
+                        (-) Denda: {formatRupiah(denda)}
                       </div>
                     )}
 
                   <div className="mt-1">
                     Total Akhir:{" "}
                     <span className="text-green-600 font-semibold">
-                      {formatCurrency(totalAkhir)}
+                      {formatRupiah(totalAkhir)}
                     </span>
                   </div>
                 </>
