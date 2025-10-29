@@ -140,13 +140,16 @@ const DetailBastForm = () => {
 
   // Fungsi helper untuk format Rupiah
 const formatRupiah = (value) => {
-  if (!value && value !== 0) return "Rp 0";
-  const number = parseInt(value.toString().replace(/[^\d]/g, ""), 10);
-  return number.toLocaleString("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  });
+  if (value === null || value === undefined || value === "") return "Rp 0";
+
+  // Pastikan value adalah number yang valid
+  const number = Number(value);
+
+  // Jika bukan angka, return default
+  if (isNaN(number)) return "Rp 0";
+
+  // Format ke Rupiah dengan titik ribuan, tanpa koma desimal
+  return `Rp ${number.toLocaleString("id-ID", { minimumFractionDigits: 0 })}`;
 };
 
   return (
@@ -453,21 +456,21 @@ const formatRupiah = (value) => {
                   <div>
                     Total Awal:{" "}
                     <span className="text-blue-600">
-                      {formatCurrency(totalAwal)}
+                      {formatRupiah(totalAwal)}
                     </span>
                   </div>
 
                   {bastData.kesesuaianJumlahSpesifikasi === "Tidak Sesuai" &&
                     denda > 0 && (
                       <div className="text-red-600 mt-1">
-                        (-) Denda: {formatCurrency(denda)}
+                        (-) Denda: {formatRupiah(denda)}
                       </div>
                     )}
 
                   <div className="mt-1">
                     Total Akhir:{" "}
                     <span className="text-green-600 font-semibold">
-                      {formatCurrency(totalAkhir)}
+                      {formatRupiah(totalAkhir)}
                     </span>
                   </div>
                 </>
