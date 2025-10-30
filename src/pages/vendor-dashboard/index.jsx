@@ -54,7 +54,7 @@ const VendorDashboard = () => {
   };
 
   const handleUploadNew = () => {
-    navigate('/bast/upload');
+    navigate('/bast');
   };
 
   const handleReview = (idBast) => {

@@ -15,43 +15,43 @@ const Header = () => {
   const vendorNavItems = [
     { label: 'Dashboard', path: '/vendor-dashboard', icon: 'LayoutDashboard' },
     { label: 'BAST', path: '/bast', icon: 'Upload' },
-    { label: 'Track Status', path: '/bast-status-tracking', icon: 'Search' },
+    // { label: 'Track Status', path: '/bast-status-tracking', icon: 'Search' },
   ];
 
   const reviewerNavItems = [
     { label: 'Dashboard', path: '/reviewer-dashboard', icon: 'LayoutDashboard' },
     // { label: 'BAST', path: '/bast', icon: 'Upload' },
-    { label: 'Track Status', path: '/bast-status-tracking', icon: 'Search' },
+    // { label: 'Track Status', path: '/bast-status-tracking', icon: 'Search' },
   ];
 
   const approvalNavItems = [
     { label: 'Dashboard', path: '/approver-dashboard', icon: 'LayoutDashboard' },
     // { label: 'Document Review', path: '/document-review', icon: 'FileText' },
-    { label: 'Track Status', path: '/bast-status-tracking', icon: 'Search' },
+    // { label: 'Track Status', path: '/bast-status-tracking', icon: 'Search' },
   ];
 
   const vendorreviewNavItems = [
     { label: 'Dashboard', path: '/internal-staff-dashboard', icon: 'LayoutDashboard' },
     { label: 'BAST', path: '/bast', icon: 'Upload' },
-    { label: 'Track Status', path: '/bast-status-tracking', icon: 'Search' },
+    // { label: 'Track Status', path: '/bast-status-tracking', icon: 'Search' },
   ];
 
   const staffNavItems = [
     { label: 'Dashboard', path: '/internal-staff-dashboard', icon: 'LayoutDashboard' },
-    { label: 'Track Status', path: '/bast-status-tracking', icon: 'Search' },
+    // { label: 'Track Status', path: '/bast-status-tracking', icon: 'Search' },
   ];
 
   const adminNavItems = [
     { label: 'Dashboard', path: '/internal-staff-dashboard', icon: 'LayoutDashboard' },
     { label: 'Master Vendor', path: '/master-vendor', icon: 'FileText' },
     { label: 'Pengguna', path: '/pengguna', icon: 'FileText' },
-    { label: 'Track Status', path: '/bast-status-tracking', icon: 'Search' },
+    // { label: 'Track Status', path: '/bast-status-tracking', icon: 'Search' },
   ];
 
   const picNavItems = [
     { label: 'Dashboard', path: '/internal-pic-dashboard', icon: 'LayoutDashboard' },
     { label: 'BAST', path: '/bast', icon: 'Upload' },
-    { label: 'Track Status', path: '/bast-status-tracking', icon: 'Search' },
+    // { label: 'Track Status', path: '/bast-status-tracking', icon: 'Search' },
   ];
 
   // Mapping role ke navigasi
